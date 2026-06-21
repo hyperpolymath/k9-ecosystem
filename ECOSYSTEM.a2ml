@@ -1,0 +1,42 @@
+; SPDX-License-Identifier: MPL-2.0
+(ecosystem
+  (metadata
+    (name "k9-ecosystem")
+    (version "0.1.0")
+    (updated "2026-06-21")
+    (authority "coordination-hub")
+    (semantic-authority "satellite"))
+
+  (upstream
+    (spec
+      (repo "hyperpolymath/standards")
+      (path "docs/CONTRACTILE-SPEC.adoc")
+      (pin "TODO-tag"))
+    (governance
+      (repo "hyperpolymath/standards")
+      (path "GOVERNANCE.adoc")
+      (pin "TODO-tag")))
+
+  (membership
+    (implementations
+      (member "k9-rs" (group "implementations") (path "members/implementations/k9-rs") (branch "main") (repo "hyperpolymath/k9-rs"))
+      (member "k9_ex" (group "implementations") (path "members/implementations/k9_ex") (branch "main") (repo "hyperpolymath/k9_ex"))
+      (member "k9_gleam" (group "implementations") (path "members/implementations/k9_gleam") (branch "main") (repo "hyperpolymath/k9_gleam"))
+      (member "k9-deno" (group "implementations") (path "members/implementations/k9-deno") (branch "main") (repo "hyperpolymath/k9-deno"))
+      (member "k9-haskell" (group "implementations") (path "members/implementations/k9-haskell") (branch "main") (repo "hyperpolymath/k9-haskell")))
+
+    (tooling
+      (member "tree-sitter-k9" (group "tooling") (path "members/tooling/tree-sitter-k9") (branch "main") (repo "hyperpolymath/tree-sitter-k9"))
+      (member "vscode-k9" (group "tooling") (path "members/tooling/vscode-k9") (branch "main") (repo "hyperpolymath/vscode-k9"))
+      (member "pandoc-k9" (group "tooling") (path "members/tooling/pandoc-k9") (branch "main") (repo "hyperpolymath/pandoc-k9"))
+      (member "k9iser" (group "tooling") (path "members/tooling/k9iser") (branch "main") (repo "hyperpolymath/k9iser")))
+
+    (ci
+      (member "k9-validate-action" (group "ci") (path "members/ci/k9-validate-action") (branch "main") (repo "hyperpolymath/k9-validate-action"))
+      (member "k9-pre-commit" (group "ci") (path "members/ci/k9-pre-commit") (branch "main") (repo "hyperpolymath/k9-pre-commit")))
+
+    (examples
+      (member "k9-showcase" (group "examples") (path "members/examples/k9-showcase") (branch "main") (repo "hyperpolymath/k9-showcase"))))
+
+  (related
+    (related "k9-svc" (relationship "future-service-repository") (repo "hyperpolymath/k9-svc") (exists false))))
