@@ -1,0 +1,17 @@
+; SPDX-License-Identifier: MPL-2.0
+(conformance-manifest
+  (metadata
+    (name "k9-conformance-corpus")
+    (version "0.1.0")
+    (updated "2026-06-21"))
+
+  (positive-fixtures
+    (fixture "valid/project-metadata.k9.ncl" (expect "pass") (leash "Kennel"))
+    (fixture "valid/ci-config.k9.ncl" (expect "pass") (leash "Yard"))
+    (fixture "valid/setup-repo.k9.ncl" (expect "pass") (leash "Hunt")))
+
+  (negative-fixtures
+    (fixture "invalid/no-magic-line.k9.ncl" (expect "error") (reason "missing K9 magic line"))
+    (fixture "invalid/unknown-leash.k9.ncl" (expect "error") (reason "unknown leash"))
+    (fixture "invalid/hunt-without-signature-required.k9.ncl" (expect "error") (reason "Hunt without signature_required"))
+    (fixture "invalid/missing-pedigree.k9.ncl" (expect "error") (reason "missing pedigree"))))

@@ -1,0 +1,12 @@
+= K9 Contractile Specification Pointer
+
+The K9 contractile specification is not owned in this coordination hub.
+
+Canonical upstream:
+
+* Repository: `hyperpolymath/standards`
+* Path: `docs/CONTRACTILE-SPEC.adoc`
+* Pin: `TODO-tag`
+
+The referenced `k9-svc` repository does not exist yet. It is tracked as a
+future related project in link:../ECOSYSTEM.a2ml[] rather than as a member.
