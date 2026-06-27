@@ -1,0 +1,29 @@
+= K9 Ecosystem Roadmap
+
+// SPDX-License-Identifier: CC-BY-SA-4.0
+
+== Outstanding Decisions
+
+* *Spec home.* Resolve whether the K9 contractile spec lives in
+  `hyperpolymath/standards` (`docs/CONTRACTILE-SPEC.adoc`) or a new `k9-svc`
+  repository, then pin the tag and replace `TODO-tag`.
+* *Membership ratification.* Confirm the 12-member roster and keep `k9-svc`
+  as a future related reference (never a submodule until it exists).
+
+== Tracked Issues
+
+* Pin canonical spec in standards + replace TODO-tag — `decision`, `governance`
+* Member rollout: ANCHOR satellite+pin+conformance CI; enable upstream-pins — `rollout`
+* Canonical parse-AST (expected.json) + expand conformance corpus — `conformance`
+* Governance parity: stamp standard `.machine_readable` + CONTRIBUTING/SECURITY/COC
+  from standards — `governance`
+* Author tiered dev/maintainer/user docs + concept guides — `docs`
+* Reference this hub from developer-ecosystem / standards — `meta`
+* Resolve spec home: standards/CONTRACTILE-SPEC vs create k9-svc — `decision`
+
+== Sketch Areas
+
+* Canonical parse-AST artifacts (`expected.json`) alongside fixtures.
+* Drift dashboard summarising submodule pin freshness against upstream.
+* Automated pin-bump tooling once the first standards tag exists.
+* Expanded negative corpus covering further leash / pedigree edge cases.

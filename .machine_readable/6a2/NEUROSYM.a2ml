@@ -1,0 +1,11 @@
+; SPDX-License-Identifier: MPL-2.0
+(neurosym
+  (metadata
+    (name "k9-ecosystem-neurosym")
+    (version "0.1.0")
+    (updated "2026-06-27"))
+  (intent "Neuro-symbolic notes bridging K9 contractile structure and learned tooling.")
+  (notes
+    (note "K9 components are Nickel contractiles with explicit security leashes and pedigree.")
+    (note "Conformance fixtures provide a labelled corpus (valid/invalid) usable for evaluation."))
+  (status "stub — to be expanded"))

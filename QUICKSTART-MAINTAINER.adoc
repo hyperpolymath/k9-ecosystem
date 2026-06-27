@@ -1,0 +1,16 @@
+= K9 Ecosystem — Maintainer Quickstart
+
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Skeleton: headings and one-line intents only.
+
+== Resolve the spec home
+Decide between `standards/CONTRACTILE-SPEC` and a new `k9-svc`, then pin the tag.
+
+== Bump the upstream pin
+Replace `TODO-tag` in `.machine_readable/anchors/ANCHOR.a2ml` once a tag exists.
+
+== Ratify membership changes
+Approve additions/removals and keep `ECOSYSTEM.a2ml` and `check-membership.sh` in lockstep.
+
+== Enable enforcing drift gates
+Flip the `upstream-pins` CI job to fail on `TODO-tag` after the first real pin.

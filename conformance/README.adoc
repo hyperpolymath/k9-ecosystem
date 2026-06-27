@@ -1,0 +1,31 @@
+= K9 Conformance Corpus
+
+// SPDX-License-Identifier: CC-BY-SA-4.0
+
+Local positive and negative `.k9.ncl` fixtures for the K9 validator, indexed by
+link:manifest.a2ml[manifest.a2ml].
+
+== Layout
+
+* `valid/` — fixtures that must validate with zero errors (one per leash:
+  Kennel, Yard, Hunt).
+* `invalid/` — fixtures that must error under `INPUT_STRICT=true`.
+
+== Rules exercised
+
+A K9 component must begin with the `K9!` magic line, declare a known security
+leash (`'Kennel`, `'Yard`, `'Hunt`), carry a `pedigree` block, and — when the
+leash is `'Hunt` — set `signature_required`.
+
+Negative fixtures cover: no `K9!` magic line, an unknown leash (`'Pound`),
+`'Hunt` without `signature_required`, and a missing `pedigree`.
+
+== Verify
+
+[source,sh]
+----
+# positive: zero errors
+INPUT_PATH=conformance/valid   INPUT_STRICT=true  <validate-k9.sh>
+# negative: every case errors
+INPUT_PATH=conformance/invalid INPUT_STRICT=true  <validate-k9.sh>
+----

@@ -1,0 +1,20 @@
+; SPDX-License-Identifier: MPL-2.0
+(meta
+  (metadata
+    (name "k9-ecosystem-meta")
+    (version "0.1.0")
+    (updated "2026-06-27"))
+  (decision-records
+    (adr (id "ADR-001") (title "Hub is a satellite of standards")
+      (status "accepted")
+      (decision "This repository is a coordination hub and SATELLITE of hyperpolymath/standards. It does not own the K9 contractile spec or governance; both are pinned from standards by tag in ANCHOR.a2ml."))
+    (adr (id "ADR-002") (title "Drift control is pin+verify, not hardlinks")
+      (status "accepted")
+      (decision "Upstream spec and governance are referenced by pinned tag and verified in CI (anchor-drift); they are never copied or hard-linked into this hub."))
+    (adr (id "ADR-003") (title "Members are independent repositories")
+      (status "accepted")
+      (decision "Member projects are pinned as submodule gitlinks under members/<group>/<name> on main. They version and release independently of this hub."))
+    (adr (id "ADR-004") (title "k9-svc is a future related repository")
+      (status "proposed")
+      (decision "k9-svc does not exist yet and is NOT a member submodule. It is recorded only as a (related ...) reference in ECOSYSTEM.a2ml. Resolving the spec home (standards/CONTRACTILE-SPEC vs creating k9-svc) is an open decision.")))
+  (see-also "../../CLOSE-OUT.md"))

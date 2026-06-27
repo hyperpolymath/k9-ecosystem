@@ -3,7 +3,7 @@
   (metadata
     (name "k9-ecosystem")
     (version "0.1.0")
-    (updated "2026-06-21")
+    (updated "2026-06-27")
     (authority "coordination-hub")
     (semantic-authority "satellite"))
 

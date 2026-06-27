@@ -9,4 +9,7 @@ Canonical upstream:
 * Pin: `TODO-tag`
 
 The referenced `k9-svc` repository does not exist yet. It is tracked as a
-future related project in link:../ECOSYSTEM.a2ml[] rather than as a member.
+future related project in
+link:../.machine_readable/6a2/ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] rather than as a
+member. Whether the spec lives in `standards` or a new `k9-svc` is an open
+decision.

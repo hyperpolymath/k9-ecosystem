@@ -1,0 +1,22 @@
+= K9 Ecosystem — Concepts
+
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Outline: headings and one-line intents only.
+
+== Coordination hub
+A repository that coordinates members without owning the specification.
+
+== Satellite of standards
+Spec and governance are pinned from `hyperpolymath/standards` by tag.
+
+== Contractiles and leashes
+K9 components are Nickel contractiles with security leashes: Kennel, Yard, Hunt.
+
+== Pedigree and signatures
+Every component carries a pedigree; Hunt-level components require signatures.
+
+== Conformance corpus
+Labelled valid/invalid `.k9.ncl` fixtures gate the validator.
+
+== Drift control
+Pin + verify in CI; upstream is never hard-linked into the hub.

@@ -1,0 +1,27 @@
+; SPDX-License-Identifier: MPL-2.0
+(playbook
+  (metadata
+    (name "k9-ecosystem-playbook")
+    (version "0.1.0")
+    (updated "2026-06-27"))
+  (how-to
+    (add-member
+      (step "Create or identify the member repo under hyperpolymath/")
+      (step "git submodule add -b main https://github.com/hyperpolymath/<name>.git members/<group>/<name>")
+      (step "Add a (member ...) entry to .machine_readable/6a2/ECOSYSTEM.a2ml and a check_member line to scripts/check-membership.sh")
+      (step "Run scripts/check-membership.sh until it passes"))
+    (add-conformance-case
+      (step "Add a .k9.ncl fixture under conformance/valid or conformance/invalid")
+      (step "Register it in conformance/manifest.a2ml with its expected outcome (and leash for positive cases)")
+      (step "Positive fixtures need the K9! magic line, a known leash (Kennel/Yard/Hunt), a pedigree block, and signature_required for Hunt")
+      (step "Verify: validate conformance/valid (0 errors) and conformance/invalid strict (every case errors)"))
+    (bump-upstream-pin
+      (step "Cut or identify the target tag in hyperpolymath/standards")
+      (step "Replace pin = TODO-tag in .machine_readable/anchors/ANCHOR.a2ml under [upstream.spec] and [upstream.governance]")
+      (step "Mirror the pin in .machine_readable/6a2/ECOSYSTEM.a2ml (upstream ...)")
+      (step "Make the upstream-pins CI gate enforcing")))
+  (open-threads
+    (thread "Resolve spec home: standards/CONTRACTILE-SPEC vs create k9-svc")
+    (thread "Pin canonical K9 contractile spec tag in standards; replace TODO-tag")
+    (thread "Add canonical parse-AST expected.json and expand the corpus")
+    (thread "Governance parity: stamp standard .machine_readable + CONTRIBUTING/SECURITY/COC from standards")))
