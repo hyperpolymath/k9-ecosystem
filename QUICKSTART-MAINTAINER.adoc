@@ -12,5 +12,8 @@ Replace `TODO-tag` in `.machine_readable/anchors/ANCHOR.a2ml` once a tag exists.
 == Ratify membership changes
 Approve additions/removals and keep `ECOSYSTEM.a2ml` and `check-membership.sh` in lockstep.
 
+== Maintain governance parity
+Stamp the standard `.machine_readable` surface and CONTRIBUTING/SECURITY/COC from standards.
+
 == Enable enforcing drift gates
 Flip the `upstream-pins` CI job to fail on `TODO-tag` after the first real pin.
