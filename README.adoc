@@ -1,6 +1,9 @@
 = K9 Ecosystem Coordination Hub
 :toc: preamble
 
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// SPDX-FileCopyrightText: 2025-2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+
 `hyperpolymath/k9-ecosystem` coordinates implementations, tooling,
 CI integrations, examples, and conformance fixtures for K9 self-validating
 components and Nickel contractiles.
@@ -8,11 +11,12 @@ components and Nickel contractiles.
 This repository is a satellite of `hyperpolymath/standards`. It does not own
 the K9 contractile specification or governance rules. The upstream
 specification and governance authority are pinned in
-link:ANCHOR.a2ml[ANCHOR.a2ml] by tag.
+link:.machine_readable/anchors/ANCHOR.a2ml[ANCHOR.a2ml] by tag.
 
 == Owned Here
 
-* link:ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] records the member repository manifest.
+* link:.machine_readable/6a2/ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] records the member
+  repository manifest.
 * link:conformance/manifest.a2ml[conformance/manifest.a2ml] indexes the local
   positive and negative K9 fixtures.
 * link:scripts/check-membership.sh[scripts/check-membership.sh] checks that
@@ -26,7 +30,20 @@ hub points to `docs/CONTRACTILE-SPEC.adoc` there; until the first standards tag
 is cut, the pin is intentionally `TODO-tag`.
 
 The referenced `k9-svc` repository does not exist yet and is not listed as a
-member submodule.
+member submodule. Whether the spec ultimately lives in `standards` or a new
+`k9-svc` is an open decision (see link:CLOSE-OUT.md[CLOSE-OUT.md]).
+
+== Machine-Readable Layout
+
+Coordination metadata lives under `.machine_readable/` only:
+
+* `anchors/ANCHOR.a2ml` — authority anchor and upstream pins.
+* `6a2/ECOSYSTEM.a2ml` — membership manifest.
+* `6a2/{STATE,META,PLAYBOOK,AGENTIC,NEUROSYM}.a2ml` — hub state, ADRs, playbook,
+  and agentic / neuro-symbolic notes.
+
+link:0-AI-MANIFEST.a2ml[0-AI-MANIFEST.a2ml] at the repository root is the entry
+point that indexes this surface.
 
 == Membership Layout
 
@@ -37,3 +54,10 @@ their `main` branches. The groups are:
 * `tooling`
 * `ci`
 * `examples`
+
+== Getting Started
+
+See link:SETUP.md[SETUP.md], the tiered quickstarts
+(link:QUICKSTART-USER.adoc[user], link:QUICKSTART-DEV.adoc[dev],
+link:QUICKSTART-MAINTAINER.adoc[maintainer]), link:ROADMAP.adoc[ROADMAP.adoc],
+and link:CLOSE-OUT.md[CLOSE-OUT.md].

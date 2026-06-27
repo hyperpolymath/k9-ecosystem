@@ -1,0 +1,16 @@
+= Design: Conformance Authoring
+
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Outline: headings and one-line intents only.
+
+== Positive vs negative
+`valid/` must pass clean (one per leash); `invalid/` must error under strict mode.
+
+== K9 invariants
+Magic `K9!` line, known leash, pedigree block, and `signature_required` for Hunt.
+
+== Negative coverage
+No magic line, unknown leash, Hunt without signature, and missing pedigree.
+
+== Registering fixtures
+Every fixture is listed in `manifest.a2ml` with its expected outcome.

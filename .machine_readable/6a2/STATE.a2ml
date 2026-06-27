@@ -1,0 +1,13 @@
+; SPDX-License-Identifier: MPL-2.0
+(state
+  (metadata
+    (name "k9-ecosystem-state")
+    (version "0.1.0")
+    (updated "2026-06-27"))
+  (status
+    (phase "coordination-hub scaffolded; close-out in review")
+    (build "rebuilt to .machine_readable canon; K9 conformance corpus verified locally")
+    (upstream-pin "TODO-tag — awaiting first hyperpolymath/standards tag")
+    (spec-home "undecided — standards/CONTRACTILE-SPEC vs create k9-svc")
+    (membership "12 members declared as submodule gitlinks; pins resolve in CI")
+    (open "see ROADMAP.adoc and PLAYBOOK.a2ml open-threads")))
