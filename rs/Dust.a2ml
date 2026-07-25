@@ -1,0 +1,14 @@
+// Dust.a2ml for k9-rs
+// SPDX-License-Identifier: MPL-2.0
+// Generated: 2026-04-08T19:52:20+01:00
+
+Dust {
+    name: "k9-rs"
+    version: "1.0.0"
+    description: "Dust contractile for k9-rs"
+    
+    // Basic Dust configuration
+    enabled: true
+    
+    // Repository-specific settings will be added here
+}

@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# action.yml — Validate K9 Configuration Files GitHub Action
+# Scans repository for .k9 and .k9.ncl files and validates structure,
+# magic number, pedigree blocks, and security level constraints.
+
+name: 'Validate K9 Configurations'
+description: >-
+  Scan and validate K9 configuration files (.k9 and .k9.ncl) in your
+  repository. Checks for K9! magic number, pedigree block (name, version,
+  security_level), valid security levels (kennel/yard/hunt), and ensures
+  hunt-level files include a signature field.
+author: 'Jonathan D.A. Jewell'
+
+branding:
+  icon: 'lock'
+  color: 'orange'
+
+inputs:
+  path:
+    description: >-
+      Directory path to scan for K9 files.
+      Defaults to the repository root.
+    required: false
+    default: '.'
+  strict:
+    description: >-
+      When true, warnings are promoted to errors and the action
+      will fail on any validation issue. Defaults to false.
+    required: false
+    default: 'false'
+  paths-ignore:
+    description: >-
+      Newline-separated path fragments to skip. Each line is matched as a
+      substring against the file's path. Defaults to common vendored /
+      training-corpus / fixture patterns so consumers don't have to repeat
+      this carve-out in every repo. Pass an empty string to disable.
+      Pattern follows hyperpolymath/hypatia#243 — validators that scan
+      content patterns must distinguish a target file from a fixture /
+      vendored / training-corpus file that legitimately contains the
+      pattern being checked. The vendored-estate-clone carve-out (e.g.
+      absolute-zero/) follows the convention that a tracked subdirectory
+      named after an upstream hyperpolymath repo is a vendored copy whose
+      K9 files belong to the upstream's CI, not the host's.
+    required: false
+    default: |
+      vendor/
+      vendored/
+      verified-container-spec/
+      .audittraining/
+      integration/fixtures/
+      test/fixtures/
+      tests/fixtures/
+      absolute-zero/
+
+outputs:
+  files-scanned:
+    description: 'Number of K9 files scanned'
+    value: ${{ steps.validate.outputs.files_scanned }}
+  errors:
+    description: 'Number of validation errors found'
+    value: ${{ steps.validate.outputs.errors }}
+  warnings:
+    description: 'Number of validation warnings found'
+    value: ${{ steps.validate.outputs.warnings }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate K9 configurations
+      id: validate
+      shell: bash
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_STRICT: ${{ inputs.strict }}
+        INPUT_PATHS_IGNORE: ${{ inputs.paths-ignore }}
+      run: |
+        "${GITHUB_ACTION_PATH}/validate-k9.sh"

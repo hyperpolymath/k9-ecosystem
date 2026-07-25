@@ -1,0 +1,98 @@
+# SPDX-License-Identifier: MPL-2.0
+# idrisiser manifest for k9-rs
+#
+# Generates Idris2 dependent-type wrappers for the K9 contract-validator library.
+# K9 enforces build/runtime contracts across the entire hyperpolymath estate.
+# These wrappers prove that:
+#   - Contract validation is total (never panics)
+#   - Every valid component satisfies all declared K9 constraints
+#   - Constraint checking is sound (no false negatives: if a contract is in
+#     the Ok result, its check field is non-empty and its severity is recognised)
+#   - SecurityLevel ordering is monotone (Kennel < Yard < Hunt)
+
+[project]
+name = "k9-rs"
+module-prefix = "K9.Verified"
+
+# ---------------------------------------------------------------------------
+# Interface 1 — component parser (src/parser.rs)
+# ---------------------------------------------------------------------------
+[[interfaces]]
+name = "component-parser"
+source = "idrisiser/parser.tsig"
+format = "type-sig"
+verify = ["parse", "parse_file"]
+preconditions = [
+  "Input string is valid UTF-8",
+  "Input does not start with Nickel syntax (let ... in, { at top level)",
+  "Every component block has a non-empty name after component:",
+  "Every pedigree sub-block supplies both origin and author fields",
+  "Every contract sub-block supplies a non-empty check field",
+]
+postconditions = [
+  "Ok(components) implies every component has a non-empty name, version, and pedigree",
+  "Ok(components) implies every component security_level is a valid SecurityLevel variant",
+  "Err(K9Error::NickelFormat(_)) is returned exactly when the input is Nickel syntax",
+  "parse returns Ok([]) for empty input without panicking",
+  "Every contract in the Ok result has a non-empty check field",
+]
+invariants = [
+  "parse is total: it never panics on any &str input",
+  "parse_file delegates to parse after IO, inheriting its totality",
+  "parse_file returns Err(NickelFormat) for files with .k9.ncl extension",
+  "Component name and version are always non-empty strings in the Ok case",
+  "Contract severity is always one of: error, warning, info",
+]
+
+# ---------------------------------------------------------------------------
+# Interface 2 — type system (Component, SecurityLevel, Contract, Pedigree)
+# ---------------------------------------------------------------------------
+[[interfaces]]
+name = "component-types"
+source = "idrisiser/types.tsig"
+format = "type-sig"
+verify = ["SecurityLevel.from_str", "SecurityLevel.as_str", "Component.new", "Contract.new"]
+preconditions = [
+  "SecurityLevel.from_str input is a non-empty string",
+  "Component.new receives non-empty name and version strings",
+  "Contract.new receives non-empty name and check strings",
+]
+postconditions = [
+  "SecurityLevel.from_str returns Some(_) iff input is one of: kennel, yard, hunt (case-insensitive)",
+  "SecurityLevel.as_str(SecurityLevel.from_str(s).unwrap()) == s.to_lowercase() — round-trip",
+  "Component.new produces a component with empty contracts list and no recipe",
+  "Contract.new defaults severity to error",
+]
+invariants = [
+  "SecurityLevel ordering is total and monotone: Kennel < Yard < Hunt",
+  "from_str and as_str form a partial bijection (round-trip for valid strings)",
+  "A Component always has at least one Pedigree (pedigree is non-optional)",
+  "Pedigree.origin and Pedigree.author are always non-empty strings in the Ok case",
+]
+
+# ---------------------------------------------------------------------------
+# Interface 3 — round-trip renderer (src/renderer.rs)
+# ---------------------------------------------------------------------------
+[[interfaces]]
+name = "round-trip"
+source = "idrisiser/round-trip.tsig"
+format = "type-sig"
+verify = ["render"]
+preconditions = [
+  "render receives a Vec<Component> produced by a successful parse call",
+]
+postconditions = [
+  "render returns Ok(_) for any components list produced by parse",
+  "parse(render(components).unwrap()) produces a semantically equivalent component list",
+]
+invariants = [
+  "render is total on well-formed Component lists (no panic path)",
+  "render(parse(input).unwrap()) is idempotent up to whitespace normalisation",
+  "Contract soundness: every contract in the Ok result has a non-empty check field",
+]
+
+[proofs]
+require-totality = true
+round-trip-proofs = true
+qtt-tracking = false
+search-depth = 100

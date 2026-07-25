@@ -1,0 +1,6 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Type signatures for the k9-rs parser (src/parser.rs)
+-- Format: name : Type (idrisiser type-sig format)
+
+parse : String -> Result (List Component) K9Error
+parse_file : Path -> Result (List Component) K9Error

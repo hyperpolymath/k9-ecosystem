@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= k9_ex — Show Me The Receipts
+:toc:
+:icons: font
+
+The README makes claims. This file backs them up.
+
+== Real Claims From The README
+
+**Claim 1: "K9 (Self-Validating Components) parser and renderer for Elixir"** (mix.exs description)
+
+K9 is a component specification format with three security levels: Kennel (data), Yard (contracts), and Hunt (execution). The k9_ex parser in `lib/k9/parser.ex` reads `.k9` files and emits a typed `Component` AST via `K9.Parser.parse/1`. Each component declares a pedigree (metadata), security policy, target (deployment info), recipes (build instructions), and validation (verification checks).
+
+*How it works:* The parser splits input into sections (pedigree, security, target, recipes, validation). Lines starting with a section header followed by a colon denote a new section. Each section contains key-value pairs. The parser extracts security level from the security section, target path from the target section, and recipes as command lists. The renderer in `lib/k9/renderer.ex` reconstructs the `.k9` surface syntax from the AST. Caveat: The Kennel level (data validation) is currently parsed as metadata; full contract enforcement (Yard level) requires Nickel integration, which is planned for v0.2.0.
+
+**Claim 2: "Typed AST with structs for blocks, inlines, directives, and attestations"** (mix.exs feature claim)
+
+The `K9.Types` module in `lib/k9/types.ex` defines Elixir structs for:
+
+* `Component` — top-level container with pedigree, security, target, recipes, validation
+* `Pedigree` — metadata (name, version, author, date)
+* `SecurityPolicy` — security level (:kennel, :yard, :hunt) and inline policy directives
+* `Target` — deployment context (platform, registry, version constraints)
+* `Recipes` — list of build/deploy recipes with command sequences
+* `Validation` — checklist of validation steps (tests, linting, signing)
+
+Each struct uses Elixir's pattern matching for safe navigation. The renderer walks these structs and emits valid K9 syntax.
+
+*How it works:* When you call `K9.Parser.parse(file_content)`, the parser creates a `Component` struct. The `Recipes` list is a list of maps with `:name` and `:steps` keys. `SecurityPolicy` includes both the level and inline policy blocks (e.g., `policy: "require-signature"`). Caveat: Nested recipe steps (multi-line commands) may not round-trip perfectly due to whitespace normalization; the semantic content is preserved.
+
+== Dogfooted Across The Account
+
+k9_ex is part of the K9 ecosystem, which spans multiple languages:
+
+* link:https://github.com/hyperpolymath/k9-rs[k9-rs] — Rust parser (primary reference implementation)
+* link:https://github.com/hyperpolymath/k9-haskell[k9-haskell] — Haskell parser
+* link:https://github.com/hyperpolymath/pandoc-k9[pandoc-k9] — Pandoc plugin for K9
+* link:https://github.com/hyperpolymath/awesome-nickel[awesome-nickel] — Nickel contracts for K9 specs
+
+The Elixir version enables K9 parsing in BEAM-based systems and serves as a reference implementation for testing cross-language compatibility.
+
+== Technology Choices
+
+[cols="1,2,3"]
+|===
+| Technology | Learn More | Why
+
+| **Elixir** | https://elixir-lang.org | BEAM runtime, immutable data, pattern matching for AST walkers
+| **ExUnit** | https://hexdocs.pm/ex_unit | Testing framework
+| **Hex.pm** | https://hex.pm | Package distribution (MPL-2.0 required for ecosystem)
+|===
+
+== File Map
+
+[cols="1,2,3"]
+|===
+| Path | What's There | Key Details
+
+| `lib/k9/parser.ex` | K9 text parser | Reads .k9 files, splits by sections, extracts pedigree/security/target/recipes/validation
+| `lib/k9/renderer.ex` | AST-to-text renderer | Reconstructs K9 syntax from `Component` struct
+| `lib/k9/types.ex` | Type definitions | `Component`, `Pedigree`, `SecurityPolicy`, `Target`, `Recipes`, `Validation` structs
+| `lib/k9.ex` | Public API | Re-exports parser and renderer functions
+| `test/k9_test.exs` | Parser tests | Round-trip tests, section extraction, error handling
+| `mix.exs` | Build configuration | Elixir version, Hex metadata, dependencies
+|===
+
+== Questions?
+
+Open an issue or reach out directly — happy to explain anything in more detail.

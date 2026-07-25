@@ -1,0 +1,5 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Type signatures for the k9-rs renderer round-trip (src/renderer.rs)
+-- Format: name : Type (idrisiser type-sig format)
+
+render : List Component -> Result String K9Error
