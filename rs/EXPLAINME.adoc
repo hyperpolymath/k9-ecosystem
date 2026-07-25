@@ -1,0 +1,117 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// (MPL-2.0 preferred; MPL-2.0 required for crates.io)
+= k9-rs — Show Me The Receipts
+Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+:toc:
+:icons: font
+
+The README makes claims. This file backs them up.
+
+== K9 Is a Parsed Format With Typed Components
+
+[quote, src/lib.rs]
+____
+K9 is a configuration format designed for declaring software components
+with built-in provenance tracking (pedigree), security classification,
+build recipes, and runtime contracts. It supports both a YAML-like
+plain-text format (.k9) and a Nickel-based format (.k9.ncl).
+____
+
+`src/parser.rs` is a line-by-line indentation-based parser. The top-level
+function `parse(input: &str) -> Result<Vec<Component>>` returns a typed sum
+on failure. The parser recognises `component:`, `version:`, `pedigree:`,
+`security:`, `recipe:`, and `contract:` blocks by indent level, accumulating
+fields into the `Component` struct. Nickel-format files (`.k9.ncl`) are
+detected early and returned as `K9Error::NickelFormat` — they require the
+Nickel evaluator and are handled by `pandoc-k9` instead.
+
+**Caveat:** The parser is YAML-like but not a full YAML parser. It uses
+indentation counting rather than a proper YAML state machine, so non-standard
+formatting (tabs, inconsistent indent widths, multi-line values) may produce
+`ParseError`. Supply-chain hash fields in `Pedigree` are stored as
+`Vec<(String, String)>` key-value pairs — no hash algorithm is validated.
+
+- Parser entry: `src/parser.rs` (`parse`, `parse_file`)
+- Types: `src/types.rs` (`Component`, `Pedigree`, `SecurityLevel`, `Recipe`, `Contract`)
+- Error surface: `src/error.rs` (`K9Error::ParseError`, `K9Error::NickelFormat`, `K9Error::Io`)
+
+== Three-Tier Security Model Is Enforced at the Type Level
+
+[quote, src/types.rs]
+____
+/// The security classification level of a K9 component.
+pub enum SecurityLevel {
+    Kennel,  // Data-only. No execution capabilities.
+    Yard,    // Nickel evaluation with limited I/O.
+    Hunt,    // Full execution. Signature REQUIRED.
+}
+____
+
+`SecurityLevel` is an enum — not a string. The parser maps `"kennel"`,
+`"yard"`, and `"hunt"` (case-insensitive) to the enum; unknown values
+return `K9Error::ParseError`. This means a consumer cannot accidentally
+treat a `Hunt`-level component as `Kennel` without an explicit match arm.
+
+**Caveat:** Signature verification for `Hunt`-level components is declared
+as a contract check (`check: gpg --verify ...`) but is not enforced by this
+library — it is the responsibility of the consumer calling `recipe.command`
+via their own executor.
+
+- Type: `src/types.rs` (`SecurityLevel`)
+- Parser mapping: `src/parser.rs` (`parse_security_level`)
+
+== Round-Trip Is Deterministic
+
+[quote, src/lib.rs]
+____
+let components = parse(input).unwrap();
+let output = render(&components).unwrap();
+____
+
+`src/renderer.rs` serialises a `Vec<Component>` back to K9 surface syntax.
+The output is canonical — fields are always emitted in the same order
+(`component`, `version`, `description`, `pedigree`, `security`, `recipe`,
+`contracts`), so `render(parse(input))` is idempotent on well-formed input.
+
+**Caveat:** Round-trip fidelity requires that the input was well-formed in
+the first place. Comments in the source `.k9` file are not preserved —
+the renderer emits only structured data.
+
+- Renderer entry: `src/renderer.rs` (`render`)
+
+== Safe Rust Without unsafe_code
+
+[quote, src/lib.rs]
+____
+#![forbid(unsafe_code)]
+____
+
+The crate gate is `#![forbid(unsafe_code)]`. Dependencies: `serde` /
+`serde_derive` for serialisation, `thiserror` for error types. No build
+scripts, no proc-macro surprises beyond serde derive.
+
+== File Map
+
+[cols="1,2"]
+|===
+| Path | Purpose
+
+| `src/types.rs` | `Component`, `Pedigree`, `SecurityLevel`, `Recipe`, `Contract`, `ContractSeverity`
+| `src/parser.rs` | Line-by-line K9 parser; Nickel format detection
+| `src/renderer.rs` | Canonical K9 renderer; deterministic field ordering
+| `src/error.rs` | `K9Error`: `ParseError`, `NickelFormat`, `Io`, `RenderError`
+| `src/lib.rs` | Crate root; `#![forbid(unsafe_code)]`; quick-start doc example
+| `tests/` | Integration tests: parse/render round-trips, security level mapping
+| `examples/` | Usage examples
+|===
+
+== Dogfooded Across The Account
+
+[cols="1,2"]
+|===
+| Technology | Also Used In
+
+| **Same parser shape** | link:https://github.com/hyperpolymath/a2ml-rs[a2ml-rs] — same line-oriented state machine pattern for A2ML
+| **SecurityLevel enum** | link:https://github.com/hyperpolymath/pandoc-k9[pandoc-k9] — Lua reader uses the same Kennel/Yard/Hunt tier model
+| **`#![forbid(unsafe_code)]`** | link:https://github.com/hyperpolymath/a2ml-rs[a2ml-rs], link:https://github.com/hyperpolymath/cookie-rebound[cookie-rebound] (Zig FFI layer)
+|===

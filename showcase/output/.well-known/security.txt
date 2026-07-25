@@ -1,0 +1,27 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA512
+
+# Security contact for k9-svc.net — RFC 9116
+# https://k9-svc.net/.well-known/security.txt
+
+Contact: mailto:j.d.a.jewell@open.ac.uk
+Encryption: openpgp4fpr:4A03639C1EB1F86C7F0C97A91835A14A2867091E
+Expires: 2027-06-21T00:00:00Z
+Preferred-Languages: en
+Canonical: https://k9-svc.net/.well-known/security.txt
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEljlFF1RJblHWtTfK0RkBfr9pWrEFAmo5stcACgkQ0RkBfr9p
+WrHdNQ//RIO79U0hawCPpYBvaDBXWUGrC3qCGZBWrKPSmSae6hCqDVUFEXem+oU9
+ZDt7jfbwu/m5b61PeEiDdCLTmQsc21MIPoG4u5axlKyqDT49jXfpwgLMDGO59w/m
+La19gPq0qUtyyvWsLKO7oOPLqqhF21bPb4v3OrJjaTrZmzSdiIDidvXzhHdgFD2H
+bCLXPv5IXmRQTTu5lrjZaqcej7uesJyo2sMqaAJQhh7xkVG+/k5YPDSU9QYVnUPC
+XOcAPpNMkxUH5YkeJkGsc+mgJvM0+QTcxHdl6bOiJIPiRVQWWz1TAi8sRNuGNjvF
+u9xVb2CQeULPPJ9cxcAmr9BlhF89p6ONzH8b4gd+Dij0hKUTfMzgAlDhgjsBAHQj
+4YazA27anIdGP1TTUozpIXp/xgEe7s9FYiY1t1D4M/MW0zDL3pLL2pQSuidFIYp3
+W2jQ/ba6fRNh311DS8Yo/vVeWR/T1QlKXAU/Yt+MTAEKKFSJmvOITv9o1LHKQf3B
+czLQrs194rAAVJwOi2p4BiWuf7eNwROxc6umaIDASzRTcatfNIu6CmyrMkpijpEP
+16e80+rK26fPjpjhFLm8p94S+5pYrbMAj9n7Nrz9G87fQIWu4Cf4eZ2dr8c0iel1
+xogOQLlegFcAS7r2QgkmcuWrNZoAriBF/5w+jTAJY1ZFarwqzE4=
+=V0k9
+-----END PGP SIGNATURE-----

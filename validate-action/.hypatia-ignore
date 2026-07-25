@@ -1,0 +1,9 @@
+# Hypatia-honoured exemption file for k9-validate-action.
+# Format: <rule_module>/<rule_type>:<path>
+#
+# SafeDOMExample.res is the recurring estate fixture demonstrating a
+# safe-DOM ReScript pattern; it pre-dates the 2026-04-30 ReScript ban and
+# stays as a fixture until the .res→.affine migration sweep (affinescript#57
+# Phase 2) reaches it. The standards#168 consolidated language-policy
+# check honours this line via the enforce()/is_exempt() helpers.
+cicd_rules/banned_language_file:examples/SafeDOMExample.res

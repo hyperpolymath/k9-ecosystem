@@ -1,0 +1,8 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Type signatures for the k9-rs types (src/types.rs)
+-- Format: name : Type (idrisiser type-sig format)
+
+SecurityLevel.from_str : String -> Option SecurityLevel
+SecurityLevel.as_str : SecurityLevel -> String
+Component.new : String -> String -> Pedigree -> SecurityLevel -> Component
+Contract.new : String -> String -> String -> Contract

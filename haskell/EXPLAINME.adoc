@@ -1,0 +1,108 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// (MPL-2.0 preferred; MPL-2.0 required for Hackage OSI-approved policy)
+= k9-haskell — Show Me The Receipts
+Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+:toc:
+:icons: font
+
+The README makes claims. This file backs them up.
+
+== K9 Format Detection Is Explicit
+
+[quote, src/Data/K9/Parser.hs]
+____
+data K9Format
+  = K9Yaml   -- .k9 format (starts with K9! magic number)
+  | K9Nickel -- .k9.ncl format (starts with let/import)
+____
+
+`detectFormat` inspects the first non-blank line of the input: if it starts
+with `K9!` the file is YAML-like K9; if it starts with `let` or `import`
+it is Nickel K9. This is explicit and cheap — no ambiguous heuristic. The
+YAML-like parser then requires the `K9!` magic number as a hard precondition
+(`MissingMagicNumber` error if absent), so a plain YAML file cannot be
+accidentally parsed as K9.
+
+**Caveat:** Format detection looks only at the first non-blank line. A K9
+file that starts with a comment block before `K9!` will fail detection.
+Detection does not validate that the rest of the file is actually valid K9 —
+that happens during full parsing.
+
+- Detection: `src/Data/K9/Parser.hs` (`detectFormat`, `K9Format`)
+- Error: `src/Data/K9/Parser.hs` (`ParseError(MissingMagicNumber)`)
+
+== SecurityLevel Is a Typed Hierarchy, Not a String
+
+[quote, src/Data/K9/Types.hs]
+____
+data SecurityLevel = Kennel | Yard | Hunt
+____
+
+`SecurityLevel` is an algebraic data type — not a `Text` field. The parser
+maps `"kennel"`, `"yard"`, and `"hunt"` (case-insensitive) to constructors;
+any other value returns `InvalidSecurityLevel`. `SecurityPolicy` wraps the
+level with explicit permission flags, separating the tier classification from
+fine-grained capabilities. This means a consumer cannot silently treat a
+`Hunt`-level component as `Kennel` without an explicit case branch.
+
+**Caveat:** Permission flag enforcement is the responsibility of the consumer.
+The library provides the types; executing recipes or validating signatures is
+out of scope.
+
+- Type: `src/Data/K9/Types.hs` (`SecurityLevel`, `SecurityPolicy`)
+- Parser: `src/Data/K9/Parser.hs` (`parseSecurityLevel`)
+
+== The Haskell Model Is Richer Than the Rust Sibling
+
+[cols="1,1"]
+|===
+| k9-rs | k9-haskell
+
+| `Component` flat struct | `Component` + separate `Pedigree` + `SecurityPolicy`
+| Single `SecurityLevel` enum | `SecurityLevel` + `SecurityPolicy` with permission flags
+| No format discriminant | `K9Format` sum type (`K9Yaml` / `K9Nickel`)
+| `parse` / `render` | `parseK9` / `parseK9File` / `parseK9Nickel` / `detectFormat`
+| No `Target` | `Target` — platform constraint declarations
+| No `Validation` | `Validation` — self-validation block (checksum, pedigree version)
+|===
+
+The Haskell variant models `Target` (platform constraints) and `Validation`
+(self-validation blocks with checksums and pedigree version pinning) as
+first-class AST nodes. These are absent from the Rust implementation.
+
+== Purely Functional — No IO in the Parser
+
+The parse functions return `Either ParseError Component` — no `IO`, no
+mutable state, no exceptions. `parseK9File :: FilePath -> IO (Either
+ParseError Component)` is the only IO-bearing entry point; it reads the
+file and passes the contents to the pure `parseK9`. This makes the parser
+straightforward to test and embed in pure contexts.
+
+**Caveat:** The parser is line-oriented with `Data.Text.lines` — not a
+full YAML parser. Indentation is counted by leading spaces; tabs are not
+supported. Multi-line string values will produce parse errors.
+
+== File Map
+
+[cols="1,2"]
+|===
+| Path | Purpose
+
+| `src/Data/K9.hs` | Top-level re-export of `parseK9`, `render`, and all types
+| `src/Data/K9/Types.hs` | `Component`, `Pedigree`, `SecurityLevel`, `SecurityPolicy`, `Target`, `Recipes`, `Validation`, `Contract`, `ContractClause`
+| `src/Data/K9/Parser.hs` | `parseK9`, `parseK9File`, `parseK9Nickel`, `detectFormat`, `ParseError`
+| `src/Data/K9/Renderer.hs` | `render :: Component -> Text`
+| `k9-haskell.cabal` | Package definition; MPL-2.0; Hackage-ready
+| `tests/` | Unit and property tests (round-trip, security level mapping, format detection)
+|===
+
+== Dogfooded Across The Account
+
+[cols="1,2"]
+|===
+| Technology | Also Used In
+
+| **Same three-tier security model** | link:https://github.com/hyperpolymath/k9-rs[k9-rs], link:https://github.com/hyperpolymath/pandoc-k9[pandoc-k9]
+| **`Either` error handling** | link:https://github.com/hyperpolymath/a2ml-haskell[a2ml-haskell] (`parseA2ML :: Text -> Either ParseError Document`)
+| **Hackage MPL-2.0 fallback** | link:https://github.com/hyperpolymath/a2ml-haskell[a2ml-haskell] — same licence policy
+|===

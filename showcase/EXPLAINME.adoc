@@ -1,0 +1,187 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= k9-showcase — Show Me The Receipts
+:toc:
+:toclevels: 3
+:icons: font
+
+The README describes k9-showcase as a content-only repository of examples and
+templates for the K9 configuration format. This file explains what K9 actually
+is, maps the content hierarchy, and identifies how the showcase is checked for
+correctness.
+
+== Claims from the README
+
+[quote, README]
+____
+This repository contains example K9 documents, templates, and rendered output
+demonstrating the capabilities of the K9 format. It is a content/showcase
+repository — there is no executable code.
+____
+
+*How it works.* K9 is a self-describing configuration format with three
+graduated security levels:
+
+* *Kennel* (`.k9` files) — pure data, safe to process from any source. No
+  evaluation, no execution. Equivalent in role to `Cargo.toml` or
+  `package.json`, but with a mandatory `K9!` preamble and a `metadata:` block
+  that carries name, version, and license.
+* *Yard* (`.k9.ncl` files, unevaluated) — Nickel contracts and types compute
+  values and validate structure. No shell access or filesystem writes; just
+  typed computation with constraint checks (e.g. "port must be between 1024 and
+  65535").
+* *Hunt* (`.k9.ncl` files, cryptographically signed) — executable recipes
+  permitted, but only when the file carries a valid signature. Signing is a
+  deliberate trust gate.
+
+The `content/` directory holds Markdown documentation pages (rendered to HTML
+via `template.html`) that explain each level with worked examples. The
+`output/` directory contains the rendered HTML artefacts. The example in
+`content/examples.md` walks through a complete Kennel-level `project.k9`
+for `panic-attacker`, showing how metadata, repository, and dependency blocks
+are structured.
+
+*Honest caveat.* The showcase is documentation, not a K9 parser or validator.
+Correctness of the example K9 syntax is asserted only by the test suite's
+file-existence and spot-checks, not by running a K9 evaluator against the
+content. The K9 evaluator lives in `tree-sitter-k9` and the format spec lives
+in `standards`.
+
+*Critical path.* `content/index.md` → explains the three-level model →
+`content/examples.md` → shows real `.k9` snippets → `output/examples.html`
+(rendered via `template.html`) → consumed by readers as the canonical
+format introduction.
+
+[quote, README (a2ml-showcase, same pattern)]
+____
+A2ML is not a paper specification. It ships with real, working tools:
+Pandoc reader/writer, VS Code syntax highlighting, Tree-sitter grammar.
+____
+
+*How this applies to k9-showcase.* The showcase explicitly documents the K9
+tooling ecosystem in `content/integrations.md`, covering: tree-sitter-k9
+(Neovim, Helix, Zed, GitHub syntax highlighting), the Nickel evaluator
+(Yard-level execution), and the `format-registrations` repo which holds the
+`application/vnd.k9` IANA media type draft and the freedesktop.org
+`shared-mime-info` XML. The security-level model described in
+`content/security-levels.md` is the normative consumer reference for
+understanding which K9 files are safe to evaluate in CI vs. which require
+a signed trust chain.
+
+*Honest caveat.* `content/integrations.md` links to repos that are in varying
+states of completion. Tree-sitter-k9 is the most mature; VS Code syntax
+highlighting for K9 is not yet published to the marketplace.
+
+== How It Is Checked
+
+[source,bash]
+----
+deno test --allow-read tests/
+----
+
+The test suite `tests/validate.test.ts` validates:
+
+* All five `content/*.md` files exist (`index.md`, `getting-started.md`,
+  `examples.md`, `integrations.md`, `security-levels.md`).
+* The rendered `output/` artefacts exist alongside their source files.
+* `template.html` is present and non-empty.
+* Content files contain expected section headings (spot-check).
+
+`tests/fuzz/` holds a fuzz corpus for property-based edge-case testing of
+content parsing.
+
+== Dogfooded Across The Account
+
+[cols="2,3", options="header"]
+|===
+| Consumer | How it uses this repo
+
+| `standards` (K9 spec)
+| The K9 specification in `standards/k9/` links to k9-showcase for
+  human-readable examples, keeping the spec document itself concise.
+
+| `format-registrations`
+| The `iana/k9-media-type.txt` registration cites k9-showcase as the
+  "Applications that use this media type" reference.
+
+| `tree-sitter-k9`
+| Uses example `.k9` snippets from `content/examples.md` as parser test
+  fixtures to verify that the tree-sitter grammar round-trips real-world
+  K9 syntax.
+
+| `awesome-nickel`
+| The K9 section in `awesome-nickel` links to k9-showcase as the entry point
+  for newcomers to the K9 format.
+
+| `hypatia-scan.yml`
+| Hypatia's format-detection rules are validated against the example K9
+  content in this repo.
+
+| `gitbot-fleet`
+| rhodibot uses the getting-started content to answer "what is K9?" queries
+  in repository discussions.
+|===
+
+== File Map
+
+[cols="2,3", options="header"]
+|===
+| Path | What's There
+
+| `content/index.md`
+| Landing page: the three-level model (Kennel/Yard/Hunt), hero section with
+  level badges, "What is K9?" narrative, and links to other content pages.
+
+| `content/getting-started.md`
+| Step-by-step guide: writing a first `.k9` file, adding Nickel contracts
+  for Yard level, and understanding signing requirements for Hunt level.
+
+| `content/examples.md`
+| Annotated example K9 files at each security level. Includes a complete
+  Kennel-level `project.k9` for `panic-attacker` with `metadata:`,
+  `repository:`, and `dependencies:` blocks.
+
+| `content/integrations.md`
+| Tooling ecosystem: tree-sitter-k9, Nickel evaluator, IANA media type,
+  freedesktop.org MIME registration, VS Code extension (pending).
+
+| `content/security-levels.md`
+| Deep dive on the trust model: what each level permits, why the levels exist,
+  and how signing gates Hunt-level execution.
+
+| `output/`
+| Rendered HTML artefacts (generated from `content/` via `template.html`).
+
+| `template.html`
+| HTML rendering template used to produce the output pages.
+
+| `tests/validate.test.ts`
+| Deno test suite. Validates file existence, content structure, and
+  template presence.
+
+| `tests/fuzz/`
+| Fuzz corpus for property-based testing.
+
+| `Justfile`
+| `just` task runner: `default`, `doctor`, `tour`, `help-me`.
+
+| `deno.json` / `deno.lock`
+| Deno runtime config and lockfile.
+
+| `guix.scm` / `flake.nix`
+| Reproducible build environment declarations.
+
+| `stapeln.toml`
+| Stapeln container configuration for this repo.
+
+| `contractiles/`
+| Contractile recipe stubs (RSR standard).
+
+| `0-AI-MANIFEST.a2ml`
+| AI agent manifest (entry point for AI tooling).
+|===
+
+== Questions?
+
+Open an issue on GitHub or reach out to Jonathan D.A. Jewell
+<j.d.a.jewell@open.ac.uk> — happy to explain anything in more detail.

@@ -1,0 +1,17 @@
+# STATE.a2ml — k9-showcase
+project = "k9-showcase"
+version = "0.1.0"
+last-updated = "2026-04-13"
+
+[status]
+phase = "example"
+grade = "C"
+readiness = "C" # 8/10 (Content-only)
+
+[features]
+content = "K9 documentation and template examples"
+security = "Three-level security model (Kennel/Yard/Hunt) documentation"
+
+[audit]
+last-pass = "2026-04-13"
+passed = true

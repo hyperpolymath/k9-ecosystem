@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# k9iser manifest for k9-showcase
+# K9 showcase — Deno-based demonstration and example collection for the K9 contract format
+
+[project]
+name = "k9-showcase"
+safety_tier = "hunt"
+
+[[source]]
+path = "deno.json"
+type = "deno"
+output = "generated/k9iser/deno-workspace.k9"
+
+[[source]]
+path = "Justfile"
+type = "justfile"
+output = "generated/k9iser/justfile-recipes.k9"
+
+[[constraint]]
+rule = "build.dependencies has no banned_packages"
+severity = "error"
+
+[[constraint]]
+rule = "deno.imports has no npm: specifiers"
+severity = "error"
