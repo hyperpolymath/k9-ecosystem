@@ -43,6 +43,20 @@ inputs:
       absolute-zero/) follows the convention that a tracked subdirectory
       named after an upstream hyperpolymath repo is a vendored copy whose
       K9 files belong to the upstream's CI, not the host's.
+
+      The `coordination.k9` / `session/custom-checks.k9` / self-validating
+      `methodology-guard.k9.ncl` entries below carve out a second, unrelated
+      class of false positive: files that share the `.k9`/`.k9.ncl`
+      extension by estate convention but are NOT K9 pedigree contracts and
+      were never meant to satisfy the K9!/pedigree schema this action
+      checks. `coordination.k9` and `session/custom-checks.k9` are the
+      estate-standard session-management coordination bindings (plain YAML,
+      ~40 repos) — see session/README.md in any repo that has them.
+      `methodology-guard.k9.ncl` is a K9 *validator definition* (rules
+      about agent methodology constraints), not a target pedigree file —
+      see its own header comment. Both families fail every K9!/pedigree
+      check by design, not by defect; ignoring them here is the one-time
+      fix instead of 40+ repos each carrying a local paths-ignore override.
     required: false
     default: |
       vendor/
@@ -53,6 +67,9 @@ inputs:
       test/fixtures/
       tests/fixtures/
       absolute-zero/
+      coordination.k9
+      session/custom-checks.k9
+      self-validating/methodology-guard.k9.ncl
 
 outputs:
   files-scanned:
