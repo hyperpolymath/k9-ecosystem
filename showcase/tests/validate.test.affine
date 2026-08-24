@@ -1,11 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
-// Ported via Harvard Engine mechanical processor
+// Ported via Harvard Engine (Semantic pass)
 
 module validate.test;
 
-// TODO: Complete semantic implementation
-
-/* === ORIGINAL TYPESCRIPT CONTEXT ===
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 
@@ -13,25 +10,25 @@ import { assertEquals, assert } from "https://deno.land/std@0.208.0/assert/mod.t
 
 // Unit tests: Basic K9 example structure validation
 Deno.test("Unit: K9 examples file exists", async () => {
-  const path = "content/examples.md";
-  const result = await Deno.stat(path);
+  let path = "content/examples.md";
+  let result = await Deno.stat(path);
   assertEquals(result.isFile, true);
 });
 
 Deno.test("Unit: K9 examples contain required sections", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
+  let content = await Deno.readTextFile("content/examples.md");
   assert(content.includes("# Examples") || content.includes("# Example"));
   assert(content.includes("##"));  // Has subsections
 });
 
 Deno.test("Unit: K9 examples have SPDX headers", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
-  const matches = content.match(/SPDX-License-Identifier: MPL-2.0\.0-or-later/g);
+  let content = await Deno.readTextFile("content/examples.md");
+  let matches = content.match(/SPDX-License-Identifier: MPL-2.0\.0-or-later/g);
   assert(matches !== null && matches.length >= 1, "Should have SPDX headers");
 });
 
 Deno.test("Unit: All content markdown files exist", async () => {
-  const expectedFiles = [
+  let expectedFiles = [
     "content/index.md",
     "content/examples.md",
     "content/integrations.md",
@@ -40,14 +37,14 @@ Deno.test("Unit: All content markdown files exist", async () => {
   ];
 
   for (const file of expectedFiles) {
-    const result = await Deno.stat(file);
+    let result = await Deno.stat(file);
     assertEquals(result.isFile, true, `File ${file} should exist`);
   }
 });
 
 // Smoke tests: K9 syntax validation
 Deno.test("Smoke: K9 declaration blocks are present", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
+  let content = await Deno.readTextFile("content/examples.md");
   // K9 uses structured declaration formats
   assert(
     content.match(/^#+\s+/m) !== null,
@@ -56,31 +53,31 @@ Deno.test("Smoke: K9 declaration blocks are present", async () => {
 });
 
 Deno.test("Smoke: K9 security levels are documented", async () => {
-  const content = await Deno.readTextFile("content/security-levels.md");
+  let content = await Deno.readTextFile("content/security-levels.md");
   assert(content.includes("security") || content.includes("Security"));
   assert(content.includes("#"));  // Has structure
 });
 
 Deno.test("Smoke: README/EXPLAINME references content correctly", async () => {
-  const explainme = await Deno.readTextFile("EXPLAINME.adoc");
+  let explainme = await Deno.readTextFile("EXPLAINME.adoc");
   assert(explainme.includes("content") || explainme.includes("test"));
 });
 
 // Contract tests: Required K9 structure
 Deno.test("Contract: Examples have consistent structure", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
-  const lines = content.split("\n");
+  let content = await Deno.readTextFile("content/examples.md");
+  let lines = content.split("\n");
 
   // At least some content
   assert(lines.length > 10, "Examples should have meaningful content");
 
   // Has hierarchy
-  const hasHeadings = lines.some((l) => l.startsWith("##"));
+  let hasHeadings = lines.some((l) => l.startsWith("##"));
   assert(hasHeadings, "Should have section headings");
 });
 
 Deno.test("Contract: Getting started guide is complete", async () => {
-  const content = await Deno.readTextFile("content/getting-started.md");
+  let content = await Deno.readTextFile("content/getting-started.md");
   assert(content.length > 100, "Getting started should have content");
   assert(
     content.includes("#") || content.includes("---"),
@@ -90,14 +87,14 @@ Deno.test("Contract: Getting started guide is complete", async () => {
 
 // Aspect tests: Cross-cutting consistency
 Deno.test("Aspect: All markdown files have consistent formatting", async () => {
-  const files = [
+  let files = [
     "content/examples.md",
     "content/integrations.md",
     "content/getting-started.md",
   ];
 
   for (const file of files) {
-    const content = await Deno.readTextFile(file);
+    let content = await Deno.readTextFile(file);
     // Check for reasonable structure
     assert(
       content.length > 50,
@@ -107,10 +104,10 @@ Deno.test("Aspect: All markdown files have consistent formatting", async () => {
 });
 
 Deno.test("Aspect: Content files are properly closed (syntax check)", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
+  let content = await Deno.readTextFile("content/examples.md");
 
   // Check for balanced markdown code blocks
-  const openTicks = (content.match(/```/g) || []).length;
+  let openTicks = (content.match(/```/g) || []).length;
   assert(
     openTicks % 2 === 0,
     "Markdown code blocks should be balanced"
@@ -118,21 +115,21 @@ Deno.test("Aspect: Content files are properly closed (syntax check)", async () =
 });
 
 Deno.test("Aspect: Directory structure is consistent", async () => {
-  const dirStructure = [
+  let dirStructure = [
     "content",
     "output",
     ".machine_readable",
   ];
 
   for (const dir of dirStructure) {
-    const stat = await Deno.stat(dir);
+    let stat = await Deno.stat(dir);
     assertEquals(stat.isDirectory, true, `Directory ${dir} should exist`);
   }
 });
 
 // Property-based tests: Invariants
 Deno.test("Property: All content files are readable and non-empty", async () => {
-  const files = [
+  let files = [
     "content/index.md",
     "content/examples.md",
     "content/integrations.md",
@@ -141,23 +138,23 @@ Deno.test("Property: All content files are readable and non-empty", async () => 
   ];
 
   for (const file of files) {
-    const content = await Deno.readTextFile(file);
+    let content = await Deno.readTextFile(file);
     assert(content.length > 0, `File ${file} should not be empty`);
     assert(content.includes("#"), `File ${file} should have markdown structure`);
   }
 });
 
 Deno.test("Property: SPDX licenses are consistent", async () => {
-  const files = [
+  let files = [
     "content/examples.md",
     "content/getting-started.md",
   ];
 
-  const results = [];
+  let results = [];
   for (const file of files) {
     try {
-      const content = await Deno.readTextFile(file);
-      const hasSpdx = content.includes("SPDX") || content.includes("License");
+      let content = await Deno.readTextFile(file);
+      let hasSpdx = content.includes("SPDX") || content.includes("License");
       results.push({ file, hasSpdx });
     } catch {
       // File may not have license header
@@ -169,11 +166,11 @@ Deno.test("Property: SPDX licenses are consistent", async () => {
 
 // E2E/Reflexive tests: Complete pipeline
 Deno.test("E2E: Example parsing round-trip", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
+  let content = await Deno.readTextFile("content/examples.md");
 
   // Extract structured sections
-  const lines = content.split("\n");
-  const sections = [];
+  let lines = content.split("\n");
+  let sections = [];
   let currentSection = "";
 
   for (const line of lines) {
@@ -193,7 +190,7 @@ Deno.test("E2E: Example parsing round-trip", async () => {
 });
 
 Deno.test("E2E: Integration file structure is sound", async () => {
-  const content = await Deno.readTextFile("content/integrations.md");
+  let content = await Deno.readTextFile("content/integrations.md");
 
   // Should mention integrations
   assert(
@@ -203,16 +200,16 @@ Deno.test("E2E: Integration file structure is sound", async () => {
   );
 
   // Should be parseable
-  const lines = content.split("\n").filter((l) => l.trim());
+  let lines = content.split("\n").filter((l) => l.trim());
   assert(lines.length > 5, "Should have multiple lines of content");
 });
 
 Deno.test("E2E: Output directory reflects input", async () => {
-  const inputFiles = await Promise.all([
+  let inputFiles = await Promise.all([
     Deno.readDir("content"),
   ]);
 
-  const contentFiles = [];
+  let contentFiles = [];
   for await (const entry of inputFiles[0]) {
     if (entry.isFile && entry.name.endsWith(".md")) {
       contentFiles.push(entry.name);
@@ -227,17 +224,17 @@ Deno.test("E2E: Output directory reflects input", async () => {
 
 // Benchmark baseline (timing assertions)
 Deno.test("Benchmark: K9 file reading performance", async () => {
-  const start = performance.now();
-  const content = await Deno.readTextFile("content/examples.md");
-  const end = performance.now();
+  let start = performance.now();
+  let content = await Deno.readTextFile("content/examples.md");
+  let end = performance.now();
 
-  const duration = end - start;
+  let duration = end - start;
   assert(duration < 100, `File read should complete in < 100ms, took ${duration.toFixed(2)}ms`);
 });
 
 Deno.test("Benchmark: Content completeness baseline", async () => {
-  const content = await Deno.readTextFile("content/examples.md");
-  const charCount = content.length;
+  let content = await Deno.readTextFile("content/examples.md");
+  let charCount = content.length;
 
   // Baseline: expect meaningful documentation
   assert(
@@ -246,4 +243,3 @@ Deno.test("Benchmark: Content completeness baseline", async () => {
   );
 });
 
-==================================== */
