@@ -1,112 +1,127 @@
-*K9 parser and renderer for Gleam — compiles to BEAM and JavaScript.*
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// (MPL-2.0 required for Hex.pm)
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 
-https://opensource.org/licenses/MPL-2.0[image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[License:
-MPL-2.0]]
-image:https://img.shields.io/badge/language-Gleam-pink.svg[Gleam]
-image:https://img.shields.io/badge/targets-BEAM%20%2B%20JS-green.svg[BEAM
-+ JS]
+= k9_gleam
+:author: Jonathan D.A. Jewell
+:revdate: 2026-03-17
+:toc: preamble
+:icons: font
 
-== What this is
+K9 (Self-Validating Components) parser and renderer for
+https://gleam.run[Gleam]. Parse and render K9 component specifications with
+full type safety on the BEAM or JavaScript targets.
 
-`+k9_gleam+` is the Gleam implementation of the K9 configuration format.
-K9 is a self-validating component specification format with three
-graduated security levels: *Kennel* (data), *Yard* (contracts), *Hunt*
-(execution).
+== What It Does
 
-Because Gleam compiles to both Erlang bytecode (BEAM) and JavaScript,
-this single library works in Elixir/Erlang projects, Deno scripts, and
-browser applications — from the same source.
+`k9_gleam` provides a typed AST, parser, and renderer for the K9 format --
+a security-tiered configuration language built on Nickel contracts. K9 files
+embed pedigree metadata, security levels, build recipes, and validation
+checksums directly in the document.
 
-== Quick start
+The library handles both K9 syntax variants:
 
-Add to `+gleam.toml+`:
+* `.k9` -- YAML-like declarative syntax (Kennel level)
+* `.k9.ncl` -- Nickel-based programmable syntax (Yard/Hunt level)
 
-[source,toml]
+== Installation
+
+[source,sh]
 ----
-[dependencies]
-k9_gleam = ">= 0.1.0"
+gleam add k9_gleam
 ----
 
-Then:
+This adds `k9_gleam` to your `gleam.toml` dependencies from
+https://hex.pm/packages/k9_gleam[Hex.pm].
+
+== Usage
 
 [source,gleam]
 ----
-import k9
+import k9_gleam
+import k9_gleam/parser
+import k9_gleam/renderer
 
-case k9.parse(content) {
-  Ok(doc) -> io.debug(doc)
-  Error(err) -> io.println("Parse error: " <> err.message)
+pub fn main() {
+  let input =
+    "pedigree:\n  name: hello-k9\n  version: 1.0.0\n  description: A greeting\n\nsecurity:\n  level: kennel"
+
+  // Parse a K9 string into a Component AST
+  let assert Ok(component) = k9_gleam.parse(input)
+
+  // Render the AST back to K9 format
+  let output = k9_gleam.render(component)
 }
 ----
 
-== Cross-compilation
+== API Overview
 
-[source,bash]
-----
-# Build for BEAM (Erlang/Elixir)
-gleam build
+=== Top-Level Convenience Functions
 
-# Build for JavaScript (Deno, Node, browser)
-gleam build --target javascript
+`k9_gleam.parse(input: String) -> Result(Component, ParseError)`::
+  Parse a K9 file string into a `Component`. Delegates to `parser.parse`.
 
-# Run tests on both targets
-gleam test
-----
+`k9_gleam.render(component: Component) -> String`::
+  Render a `Component` back to K9 surface syntax. Delegates to `renderer.render`.
 
-Both produce identical behaviour — no platform-specific code paths.
+=== Modules
 
-== Module layout
+`k9_gleam/types`::
+  Core data types for the K9 AST.
 
-[width="100%",cols="50%,50%",options="header",]
+`k9_gleam/parser`::
+  Parser implementation. Accepts `.k9` and `.k9.ncl` content.
+
+`k9_gleam/renderer`::
+  Renderer that produces K9 surface syntax from the AST.
+
+=== Key Types
+
+[cols="1,3"]
 |===
-|Module |Purpose
-|`+src/k9/parser.gleam+` |Recursive descent parser: `+parse(String)+`
-`+→+` `+Result(Document,+` `+ParseError)+`
+| Type | Description
 
-|`+src/k9/types.gleam+` |K9 type system: `+Document+`, `+Value+`,
-`+Key+`, `+Type+`, `+Metadata+`
+| `Component`
+| Top-level AST node. Contains pedigree, security, target, recipes,
+  validation, content map, and tags.
 
-|`+src/k9/validation.gleam+` |Post-parse validation: duplicate keys,
-type consistency
+| `Pedigree`
+| Identity metadata: name, version, description, author, license.
 
-|`+src/k9.gleam+` |Public API: `+parse/1+`, `+render/1+`, `+validate/1+`
+| `SecurityLevel`
+| Trust tier enum: `Kennel`, `Yard`, or `Hunt`.
 
-|`+test/+` |Test suite exercised on both BEAM and JS targets
+| `SecurityPolicy`
+| Security level plus permission flags (network, filesystem write, subprocess).
+
+| `Target`
+| Platform constraints: OS, edge mode, Podman requirement, memory.
+
+| `Recipes`
+| Lifecycle recipes: install, validate, deploy, migrate, plus custom recipes.
+
+| `Validation`
+| Self-validation block: checksum, pedigree version, hunt authorisation.
+
+| `Contract` / `ContractClause`
+| Contractile system integration (must/trust/dust/intend/k9 clauses).
 |===
 
-== K9 security levels
+== Dependencies
 
-[width="100%",cols="50%,50%",options="header",]
-|===
-|Level |What it permits
-|*Kennel* (`+.k9+`) |Pure data. Safe to process from any source.
+* `gleam_stdlib` >= 0.44.0
+* `gleeunit` (dev only) >= 1.0.0
 
-|*Yard* (`+.k9.ncl+`, unevaluated) |Nickel contracts for typed
-validation. No shell access.
+== Links
 
-|*Hunt* (`+.k9.ncl+`, signed) |Executable recipes. Requires a valid
-cryptographic signature.
-|===
+* https://hex.pm/packages/k9_gleam[Hex.pm package]
+* https://hexdocs.pm/k9_gleam[HexDocs API reference]
+* https://github.com/hyperpolymath/standards/tree/main/k9-svc/SPEC.adoc[K9 specification]
 
-== K9 ecosystem
+== Part of the K9 Ecosystem
 
-* https://github.com/hyperpolymath/k9-rs[k9-rs] — Rust (reference
-implementation)
-* https://github.com/hyperpolymath/k9_ex[k9_ex] — Elixir
-* https://github.com/hyperpolymath/k9-haskell[k9-haskell] — Haskell
-* https://github.com/hyperpolymath/tree-sitter-k9[tree-sitter-k9] —
-Editor grammar
-
-See EXPLAINME for implementation evidence and caveats.
-
-== License
-
-This project is licensed under the Mozilla Public License, v. 2.0. See
-the `+LICENSE+` file for details.
-
-SPDX-License-Identifier: CC-BY-SA-4.0
-
-== Author
-
-Jonathan D.A. Jewell +
-j.d.a.jewell@open.ac.uk
+This binding is part of the
+https://github.com/hyperpolymath/standards/tree/main/k9-svc[K9 Self-Validating Components]
+suite within the `standards` monorepo. See
+link:../README.adoc[`bindings/README.adoc`] for the full feature matrix across
+all five language bindings.

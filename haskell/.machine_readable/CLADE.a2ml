@@ -3,11 +3,11 @@
 # See: https://github.com/hyperpolymath/gv-clade-index
 
 [identity]
-uuid = "dd5c7c90-ab04-58c6-9554-e3b74e97a29d"
+uuid = "a5ea1382-a34c-5334-8a46-a2ebe904c810"
 primary-forge = "github"
 primary-owner = "hyperpolymath"
-canonical-name = "k9-haskell"
-prefixed-name = "rm-k9-haskell"
+canonical-name = "rsr-template-repo"
+prefixed-name = "rm-rsr-template-repo"
 
 [clade]
 primary = "rm"
@@ -16,32 +16,11 @@ assigned = "2026-03-16"
 rationale = ""
 
 [forges]
-github = "hyperpolymath/k9-haskell"
-gitlab = "hyperpolymath/k9-haskell"
-bitbucket = "hyperpolymath/k9-haskell"
+github = "hyperpolymath/rsr-template-repo"
+gitlab = "hyperpolymath/rsr-template-repo"
+bitbucket = "hyperpolymath/rsr-template-repo"
 
 [lineage]
 type = "standalone"
 parent = "RSR template — scaffold for new repos"
 born = "2026-03-16"
-
-# Lifecycle status (added by clade-status-backfill; see gv-clade-index ADR 0006).
-# Identity (uuid) and status are SEPARATE layers: uuid is immortal; phase is a
-# mutable pointer. No phase is terminal (extinct -> active is a legal "Gitassic
-# Park" transition on the same uuid). A rename is NOT a phase change — the old
-# prefixed-name goes to aliases[], uuid and phase are untouched.
-[status]
-# One of: reserved incubating active dormant | merged superseded archived extinct
-phase = "active"
-since = "2026-03-16"
-present = true
-aliases = []
-merged-into = ""
-superseded-by = ""
-successors = []
-ended = ""
-
-[[status.history]]
-phase = "active"
-since = "2026-03-16"
-note = "backfilled default — correct if the true phase differs"

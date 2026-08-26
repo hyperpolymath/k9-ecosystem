@@ -1,86 +1,165 @@
-Rust parser and renderer for K9 self-validating configuration files —
-declares software components with provenance tracking, security
-classification, build recipes, and runtime contracts.
+= RSR Template Repository
+:toc: preamble
+:icons: font
+
+[TIP]
+====
+**AI-Assisted Install:** Just tell any AI assistant: +
+`Set up {{PROJECT_NAME}} from https://{{FORGE}}/{{OWNER}}/{{REPO}}` +
+The AI reads the manifest, asks you a few questions, and handles everything.
+====
 
 == Overview
 
-K9 is a configuration format for software component declarations. Each
-component carries:
+**The canonical template for RSR (Rhodium Standard Repository) projects.**
 
-* *Pedigree* — provenance: origin URL, author, license, supply-chain
-hashes
-* *SecurityLevel* — Kennel / Yard / Hunt (same three-tier model as K9
-Nickel components)
-* *Recipe* — build or assembly instructions (tool + command)
-* *Contracts* — runtime invariants with check commands and severity
-levels
+This project follows a **Dual-Track** architecture:
+* **Root:** High-level orientation and rich documentation for humans.
+* **Sub-directories:** Machine-readable metadata and technical implementation.
 
-`+k9-rs+` supports two surface formats:
+== ABI/FFI Standard (Verified Interface Seams)
 
-* `+.k9+` — YAML-like plain-text format parsed natively
-+
-* `+.k9.ncl+` — Nickel format; detected and returned as `K9Error +
-NickelFormat` (requires the Nickel evaluator — use `+pandoc-k9+` for
-Nickel K9 files)
-+
+All projects with foreign function interfaces MUST follow this consolidated standard:
+
+* **ABI (Idris2):** `src/interface/abi/*.idr` (The Specification)
+* **FFI (Zig):** `src/interface/ffi/src/*.zig` (The Implementation)
+* **Generated:** `src/interface/generated/*.h` (The Artifacts)
+
+This unification ensures that the "Truth," the "Bridge," and the "Result" are managed as a single architectural unit.
+
+== AI Gatekeeper Protocol
+
+All projects MUST include a root `0-AI-MANIFEST.a2ml`. This is the mandatory entry point for all AI agents. It prevents duplicate file errors and preserves architectural invariants across sessions.
+
+== Repository Structure
+
+[cols="1,3"]
+|===
+|Directory |Purpose
+
+|`.github/`
+|Forge-specific metadata (CODEOWNERS, SECURITY.md, workflows).
+
+|`.machine_readable/`
+|Canonical project state (6 a2ml files), bot directives, and AI guides.
+
+|`container/`
+|Stapeln container ecosystem (selur-compose, vordr, rokur).
+
+|`docs/`
+|Technical documentation sorted by tracks (Theory, Practice, Architecture).
+
+|`docs/legal/`
+|Consolidated legal exhibits and full license texts.
+
+|`src/interface/`
+|Unified ABI/FFI/Generated interface unit.
+|===
+
+== Container Ecosystem (Stapeln)
+
+This template includes a complete `container/` directory for the **Stapeln Six** tools:
+1. **selur** (Orchestration)
+2. **cerro-torre** (Verified Packaging)
+3. **svalinn** (Edge Gateway)
+4. **vordr** (Monitoring)
+5. **rokur** (Secrets)
+6. **k9-svc** (Deployment Contracts)
+
 == Quick Start
 
-[source,rust]
+[source,bash]
 ----
-use k9_svc::parser::parse;
-use k9_svc::renderer::render;
-
-let input = r#"component: my-svc
-  version: 0.1.0
-  pedigree:
-    origin: https://github.com/example/svc
-    author: Alice
-  security: kennel
-"#;
-
-let components = parse(input)?;
-let output = render(&components)?;
+just init              # Interactive bootstrap
+just build             # Unified build
+just test              # Unified test
+just container-build   # Build verified OCI image
 ----
 
-== Security Levels
+== Contractile System
 
-[width="100%",cols="50%,50%",options="header",]
+This template includes five **contractile files** in `.machine_readable/contractiles/` that make your repository's rules executable:
+
+[cols="1,2,3"]
 |===
-|Level |Meaning
-|`+kennel+` |Data-only. No execution. Strict sandbox. Safe to parse
-anywhere.
+| Tool | File | Purpose
 
-|`+yard+` |Nickel evaluation + limited I/O. Capability-based sandbox.
+| `must check`
+| `Mustfile.a2ml`
+| Physical state invariants (files exist, code compiles, no secrets)
 
-|`+hunt+` |Full shell execution via recipes. Cryptographic signature
-required.
-|===
+| `trust verify`
+| `Trustfile.a2ml`
+| Integrity verification (hashes valid, signatures correct, provenance traceable)
 
-== Modules
+| `dust status`
+| `Dustfile.a2ml`
+| Cleanup tasks (stale files, build artifacts, expired tokens)
 
-[width="100%",cols="16%,84%",options="header",]
-|===
-|Module |Purpose
-|`+types+` |`+Component+`, `+Pedigree+`, `+SecurityLevel+`, `+Recipe+`,
-`+Contract+`
+| `intend list`
+| `Intentfile.a2ml`
+| Design intent and roadmap tracking
 
-|`+parser+` |`+parse(str)+` `+→+` `+Vec<Component>+` — detects Nickel
-format
-
-|`+renderer+` |`+render(&[Component])+` `+→+` `+String+`
-
-|`+error+` |`+K9Error+`: `+ParseError+`, `+NickelFormat+`, `+Io+`,
-`+RenderError+`
+| `k9 eval`
+| `*.k9.ncl`
+| Nickel-based deployment validation
 |===
 
-== Related
+=== Installation
 
-* https://github.com/hyperpolymath/k9-haskell[k9-haskell] — Haskell
-implementation
-* https://github.com/hyperpolymath/pandoc-k9[pandoc-k9] — Pandoc
-reader/writer for `+.k9.ncl+` files
+[source,bash]
+----
+cargo install contractile
+
+# Create symlinks for individual commands
+for cmd in must trust dust intend k9; do
+  ln -sf $(which contractile) ~/.local/bin/$cmd
+done
+----
+
+=== Usage
+
+[source,bash]
+----
+# Symlink contractiles to project root (CLI searches ./contractiles/)
+ln -sf .machine_readable/contractiles contractiles
+
+# Run checks
+must check           # Verify physical state (23 checks in typical RSR project)
+trust verify         # Verify integrity and provenance
+dust status          # Show cleanup items
+intend list          # Show design intents and roadmap
+
+# Generate Just recipes from contractile files
+contractile gen-just # Creates contractile.just (already imported by Justfile)
+
+# Then use via Just:
+just must-check
+just trust-verify
+----
+
+=== Writing Checks
+
+Contractile files use A2ML format — simple, line-oriented:
+
+[source]
+----
+### check-name
+- description: Human-readable description
+- run: shell command (exit 0 = pass, non-zero = fail)
+- severity: critical | warning | info
+----
+
+See link:https://github.com/hyperpolymath/contractiles[contractiles documentation] for the full specification.
+
+== Documentation
+
+* link:CONTRIBUTING.adoc[Contributing Guide]
+* link:GOVERNANCE.adoc[Governance Model]
+* link:docs/attribution/MAINTAINERS.adoc[Maintainers & Citations]
+* link:SECURITY.adoc[Security Policy]
 
 == License
 
-MPL-2.0 (MPL-2.0 preferred; MPL-2.0 required for crates.io). See
-LICENSE.
+SPDX-License-Identifier: MPL-2.0
+See link:LICENSE[LICENSE] and link:docs/legal/[docs/legal/] for details.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
-// (MPL-2.0 preferred; MPL-2.0 required for Hex.pm)
+// (MPL-2.0 required for Hex.pm)
 //
 // k9_gleam/parser — K9 component specification parser.
 //

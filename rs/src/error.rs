@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
-// (MPL-2.0 preferred; MPL-2.0 required for crates.io)
+// (MPL-2.0 required for crates.io)
 
 //! Error types for K9 parsing and rendering.
 //!

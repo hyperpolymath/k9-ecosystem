@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
-// (MPL-2.0 preferred; MPL-2.0 required for crates.io)
+// (MPL-2.0 required for crates.io)
 
 //! Renderer that serialises K9 data types back to K9 text format.
 //!
@@ -130,7 +130,7 @@ mod tests {
             Pedigree::new("https://github.com/example/test", "Alice"),
             SecurityLevel::Yard,
         );
-        let output = render(&[comp]).expect("TODO: handle error");
+        let output = render(&[comp]).unwrap();
         assert!(output.contains("component: test-svc"));
         assert!(output.contains("  version: 0.1.0"));
         assert!(output.contains("  security: yard"));
@@ -146,7 +146,7 @@ mod tests {
             SecurityLevel::Hunt,
         );
         comp.recipe = Some(Recipe::new("cargo", "cargo build --release"));
-        let output = render(&[comp]).expect("TODO: handle error");
+        let output = render(&[comp]).unwrap();
         assert!(output.contains("  recipe:"));
         assert!(output.contains("    tool: cargo"));
     }
@@ -165,7 +165,7 @@ mod tests {
             Pedigree::new("https://example.com/b", "B"),
             SecurityLevel::Yard,
         );
-        let output = render(&[c1, c2]).expect("TODO: handle error");
+        let output = render(&[c1, c2]).unwrap();
         assert!(output.contains("component: alpha"));
         assert!(output.contains("component: beta"));
     }

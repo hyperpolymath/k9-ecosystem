@@ -10,7 +10,7 @@
   title = {k9-validate-action},
   year = {2026},
   url = {https://github.com/hyperpolymath/k9-validate-action},
-  license = {MPL-2.0}
+  license = {PMPL-1.0-or-later}
 }
 ----
 
