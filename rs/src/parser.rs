@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
-// (MPL-2.0 preferred; MPL-2.0 required for crates.io)
+// (MPL-2.0 required for crates.io)
 
 //! Line-by-line parser for K9 self-validating configuration files.
 //!
@@ -84,12 +84,11 @@ pub fn parse(input: &str) -> Result<Vec<Component>> {
         }
 
         // Top-level component declaration.
-        if trimmed.starts_with("component:") {
-            let name = trimmed
-                .strip_prefix("component:")
-                .expect("TODO: handle error")
-                .trim()
-                .to_string();
+        // `if let` over the strip, not starts_with + strip_prefix().unwrap():
+        // that pair scans the prefix twice and lets the guard drift away from
+        // the extraction it is protecting.
+        if let Some(rest) = trimmed.strip_prefix("component:") {
+            let name = rest.trim().to_string();
             if name.is_empty() {
                 return Err(K9Error::parse(i + 1, 1, "component name is empty"));
             }
@@ -418,7 +417,7 @@ mod tests {
 
     #[test]
     fn parse_empty_input() {
-        let components = parse("").expect("TODO: handle error");
+        let components = parse("").unwrap();
         assert!(components.is_empty());
     }
 
@@ -431,7 +430,7 @@ mod tests {
     author: Alice
   security: kennel
 "#;
-        let components = parse(input).expect("TODO: handle error");
+        let components = parse(input).unwrap();
         assert_eq!(components.len(), 1);
         assert_eq!(components[0].name, "test-svc");
         assert_eq!(components[0].version, "1.0.0");
@@ -456,11 +455,11 @@ mod tests {
     check: cargo clippy -- -D unsafe-code
     severity: error
 "#;
-        let components = parse(input).expect("TODO: handle error");
+        let components = parse(input).unwrap();
         assert_eq!(components.len(), 1);
         let c = &components[0];
         assert!(c.recipe.is_some());
-        assert_eq!(c.recipe.as_ref().expect("TODO: handle error").tool, "cargo");
+        assert_eq!(c.recipe.as_ref().unwrap().tool, "cargo");
         assert_eq!(c.contracts.len(), 1);
         assert_eq!(c.contracts[0].name, "no-unsafe");
     }

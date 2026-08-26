@@ -15,7 +15,7 @@ k9-validate-action — containerised service packaged as a verified
 cerro-torre .ctp bundle with Ed25519 signing and full provenance
 tracking.
 """
-license = "MPL-2.0"
+license = "PMPL-1.0-or-later"
 homepage = "https://github.com/hyperpolymath/k9-validate-action"
 maintainer = "Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>"
 

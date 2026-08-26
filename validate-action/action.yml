@@ -30,46 +30,6 @@ inputs:
       will fail on any validation issue. Defaults to false.
     required: false
     default: 'false'
-  paths-ignore:
-    description: >-
-      Newline-separated path fragments to skip. Each line is matched as a
-      substring against the file's path. Defaults to common vendored /
-      training-corpus / fixture patterns so consumers don't have to repeat
-      this carve-out in every repo. Pass an empty string to disable.
-      Pattern follows hyperpolymath/hypatia#243 — validators that scan
-      content patterns must distinguish a target file from a fixture /
-      vendored / training-corpus file that legitimately contains the
-      pattern being checked. The vendored-estate-clone carve-out (e.g.
-      absolute-zero/) follows the convention that a tracked subdirectory
-      named after an upstream hyperpolymath repo is a vendored copy whose
-      K9 files belong to the upstream's CI, not the host's.
-
-      The `coordination.k9` / `session/custom-checks.k9` / self-validating
-      `methodology-guard.k9.ncl` entries below carve out a second, unrelated
-      class of false positive: files that share the `.k9`/`.k9.ncl`
-      extension by estate convention but are NOT K9 pedigree contracts and
-      were never meant to satisfy the K9!/pedigree schema this action
-      checks. `coordination.k9` and `session/custom-checks.k9` are the
-      estate-standard session-management coordination bindings (plain YAML,
-      ~40 repos) — see session/README.md in any repo that has them.
-      `methodology-guard.k9.ncl` is a K9 *validator definition* (rules
-      about agent methodology constraints), not a target pedigree file —
-      see its own header comment. Both families fail every K9!/pedigree
-      check by design, not by defect; ignoring them here is the one-time
-      fix instead of 40+ repos each carrying a local paths-ignore override.
-    required: false
-    default: |
-      vendor/
-      vendored/
-      verified-container-spec/
-      .audittraining/
-      integration/fixtures/
-      test/fixtures/
-      tests/fixtures/
-      absolute-zero/
-      coordination.k9
-      session/custom-checks.k9
-      self-validating/methodology-guard.k9.ncl
 
 outputs:
   files-scanned:
@@ -91,6 +51,5 @@ runs:
       env:
         INPUT_PATH: ${{ inputs.path }}
         INPUT_STRICT: ${{ inputs.strict }}
-        INPUT_PATHS_IGNORE: ${{ inputs.paths-ignore }}
       run: |
         "${GITHUB_ACTION_PATH}/validate-k9.sh"

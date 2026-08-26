@@ -1,17 +1,27 @@
-= K9 Contractile Specification Pointer
-
 // SPDX-License-Identifier: CC-BY-SA-4.0
+// SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= K9 Specification — pointer
 
-The K9 contractile specification is not owned in this coordination hub.
+The K9 specification is **not** held here. It lives in the canon repository:
 
-Canonical upstream:
+* Repository: https://github.com/hyperpolymath/standards[hyperpolymath/standards]
+* Path: `k9-svc/SPEC.adoc`
+* Companion: `k9-svc/SPEC.adoc.invariants.adoc`, `k9-svc/GUIDE.adoc`, `k9-svc/TESTING.adoc`
 
-* Repository: `hyperpolymath/standards`
-* Path: `docs/CONTRACTILE-SPEC.adoc`
-* Pin: `TODO-tag`
+That split is deliberate. `standards` keeps specification, policy and conformance
+material; this repository holds the *implementation* — language bindings, the
+editor extension, the pandoc filter, the LSP server, the CLI tools and the site.
 
-The referenced `k9-svc` repository does not exist yet. It is tracked as a
-future related project in
-link:../.machine_readable/6a2/ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] rather than as a
-member. Whether the spec lives in `standards` or a new `k9-svc` is an open
-decision.
+== History
+
+An earlier version of this file pointed at `docs/CONTRACTILE-SPEC.adoc` (a path
+that does not exist) and stated that "the referenced `k9-svc` repository does not
+exist yet". Both were stale: the spec has lived at `standards` `k9-svc/SPEC.adoc`
+for some time, and the implementation arrived here under
+https://github.com/hyperpolymath/standards/issues/491[standards#491].
+
+== Conformance
+
+`conformance/` in this repository holds the language-neutral fixture set
+(`valid/`, `invalid/`, `manifest.a2ml`). It is the successor to the
+`examples/` directory that came across with the implementation.

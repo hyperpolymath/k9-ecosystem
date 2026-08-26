@@ -1,23 +1,32 @@
-*K9 parser and renderer for Elixir/BEAM.*
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// (MPL-2.0 required for Hex.pm)
+// Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 
-image:https://img.shields.io/badge/License-MPL--2.0-blue.svg[License:
-MPL-2.0]
-image:https://img.shields.io/badge/language-Elixir-blueviolet.svg[Elixir]
-image:https://img.shields.io/badge/format-K9-green.svg[K9]
+= k9_ex
+:author: Jonathan D.A. Jewell
+:revdate: 2026-03-17
+:toc: preamble
+:icons: font
 
-== What this is
+K9 (Self-Validating Components) parser and renderer for
+https://elixir-lang.org[Elixir]. Parse and render K9 component specifications
+with idiomatic Elixir structs and pattern matching.
 
-`+k9_ex+` is the Elixir implementation of the K9 configuration format
-parser and renderer. K9 is a self-validating component specification
-format with three graduated security levels: *Kennel* (data), *Yard*
-(contracts), *Hunt* (execution).
+== What It Does
 
-This library parses `+.k9+` files into a typed Elixir AST and
-round-trips the AST back to K9 surface syntax.
+`k9_ex` provides a typed AST, parser, and renderer for the K9 format --
+a security-tiered configuration language built on Nickel contracts. K9 files
+embed pedigree metadata, security levels, build recipes, and validation
+checksums directly in the document.
 
-== Quick start
+The library handles both K9 syntax variants:
 
-Add to `+mix.exs+`:
+* `.k9` -- YAML-like declarative syntax (Kennel level)
+* `.k9.ncl` -- Nickel-based programmable syntax (Yard/Hunt level)
+
+== Installation
+
+Add `k9_ex` to your dependencies in `mix.exs`:
 
 [source,elixir]
 ----
@@ -28,81 +37,112 @@ defp deps do
 end
 ----
 
-Then:
+Then fetch:
+
+[source,sh]
+----
+mix deps.get
+----
+
+Available on https://hex.pm/packages/k9_ex[Hex.pm].
+
+== Usage
 
 [source,elixir]
 ----
-# Parse a K9 file
-{:ok, component} = K9.Parser.parse(File.read!("my-component.k9"))
+# Parse a K9 string into a Component struct
+{:ok, component} = K9.parse("""
+pedigree:
+  name: hello-k9
+  version: 1.0.0
+  description: A greeting
 
-# Inspect the pedigree
-component.pedigree.name    # => "my-component"
-component.security.level   # => :kennel
+security:
+  level: kennel
+""")
 
-# Round-trip back to K9 syntax
-rendered = K9.Renderer.render(component)
+# Render the struct back to K9 format
+output = K9.render(component)
+
+# Work with security levels
+{:ok, :kennel} = K9.Types.SecurityLevel.from_string("kennel")
+K9.Types.SecurityLevel.to_string(:yard)  # => "yard"
+
+# Compare security levels
+K9.Types.SecurityLevel.compare(:kennel, :hunt)  # => :lt
 ----
 
-== Architecture
+== API Overview
 
-[width="100%",cols="50%,50%",options="header",]
+=== Top-Level Module (`K9`)
+
+`K9.parse(input) :: {:ok, Component.t()} | {:error, term()}`::
+  Parse a K9 file string into a `Component` struct. Delegates to `K9.Parser`.
+
+`K9.render(component) :: String.t()`::
+  Render a `Component` struct back to K9 surface syntax. Delegates to `K9.Renderer`.
+
+=== Modules
+
+`K9.Types`::
+  Core data structures. All types are Elixir structs with `@type` specs.
+
+`K9.Parser`::
+  Parser implementation. Accepts `.k9` and `.k9.ncl` content.
+
+`K9.Renderer`::
+  Renderer that produces K9 surface syntax from the struct AST.
+
+=== Key Types
+
+[cols="1,3"]
 |===
-|Module |Purpose
-|`+K9.Parser+` (`+lib/k9/parser.ex+`) |Reads `+.k9+` text → typed
-`+Component+` struct. Splits by section (pedigree, security, target,
-recipes, validation), extracts key-value pairs.
+| Module | Description
 
-|`+K9.Renderer+` (`+lib/k9/renderer.ex+`) |Reconstructs K9 surface
-syntax from a `+Component+` struct.
+| `K9.Types.Component`
+| Top-level struct. Fields: `pedigree`, `security`, `target`, `recipes`,
+  `validation`, `content` (map), `tags` (list).
 
-|`+K9.Types+` (`+lib/k9/types.ex+`) |Elixir structs: `+Component+`,
-`+Pedigree+`, `+SecurityPolicy+`, `+Target+`, `+Recipes+`,
-`+Validation+`.
+| `K9.Types.Pedigree`
+| Identity metadata: `name`, `version`, `description`, `author`, `license`.
 
-|`+K9+` (`+lib/k9.ex+`) |Public API — re-exports `+parse/1+`,
-`+render/1+`.
+| `K9.Types.SecurityLevel`
+| Trust tier: `:kennel`, `:yard`, or `:hunt`. Provides `from_string/1`,
+  `to_string/1`, and `compare/2`.
 
-|`+test/k9_test.exs+` |Round-trip tests, section extraction, error
-handling.
+| `K9.Types.SecurityPolicy`
+| Security level plus permission flags: `allow_network`, `allow_fs_write`,
+  `allow_subprocess`.
+
+| `K9.Types.Target`
+| Platform constraints: `os`, `is_edge`, `requires_podman`, `memory`.
+
+| `K9.Types.Recipes`
+| Lifecycle recipes: `install`, `validate`, `deploy`, `migrate`, plus
+  `custom` map for additional recipes.
+
+| `K9.Types.Validation`
+| Self-validation block: `checksum`, `pedigree_version`, `hunt_authorized`.
+
+| `K9.Types.Contract` / `K9.Types.ContractClause`
+| Contractile system integration. Clause types: must, trust, dust, intend, k9.
 |===
 
-== K9 security levels
+== Dependencies
 
-[width="100%",cols="50%,50%",options="header",]
-|===
-|Level |What it permits
-|*Kennel* (`+:kennel+`) |Pure data. Safe to process from any source.
-Equivalent to `+Cargo.toml+`.
+* Elixir >= 1.14
+* `ex_doc` (dev only) ~> 0.34
 
-|*Yard* (`+:yard+`) |Nickel contracts that compute values and validate
-structure. No shell access.
+== Links
 
-|*Hunt* (`+:hunt+`) |Executable recipes — only permitted when the file
-carries a valid signature.
-|===
+* https://hex.pm/packages/k9_ex[Hex.pm package]
+* https://hexdocs.pm/k9_ex[HexDocs API reference]
+* https://github.com/hyperpolymath/standards/tree/main/k9-svc/SPEC.adoc[K9 specification]
 
-== K9 ecosystem
+== Part of the K9 Ecosystem
 
-`+k9_ex+` is one of several language implementations:
-
-* https://github.com/hyperpolymath/k9-rs[k9-rs] — Rust (reference
-implementation)
-* https://github.com/hyperpolymath/k9-haskell[k9-haskell] — Haskell
-* https://github.com/hyperpolymath/k9_gleam[k9_gleam] — Gleam (BEAM +
-JS)
-* https://github.com/hyperpolymath/pandoc-k9[pandoc-k9] — Pandoc
-reader/writer
-* https://github.com/hyperpolymath/tree-sitter-k9[tree-sitter-k9] —
-Editor grammar
-
-== License
-
-MPL-2.0 (required for Hex.pm). MPL-2.0 is the preferred intent; MPL-2.0
-is required for the Elixir package ecosystem.
-
-See EXPLAINME for implementation evidence and caveats.
-
-== Author
-
-Jonathan D.A. Jewell +
-j.d.a.jewell@open.ac.uk
+This binding is part of the
+https://github.com/hyperpolymath/standards/tree/main/k9-svc[K9 Self-Validating Components]
+suite within the `standards` monorepo. See
+link:../README.adoc[`bindings/README.adoc`] for the full feature matrix across
+all five language bindings.

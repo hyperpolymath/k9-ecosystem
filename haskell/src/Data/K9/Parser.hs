@@ -1,5 +1,5 @@
 -- SPDX-License-Identifier: MPL-2.0
--- (MPL-2.0 preferred; MPL-2.0 required for Hackage OSI-approved policy)
+-- (MPL-2.0 required for Hackage OSI-approved policy)
 --
 -- Data.K9.Parser — Parser for K9 self-validating component specifications.
 --

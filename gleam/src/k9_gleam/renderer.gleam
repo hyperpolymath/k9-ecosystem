@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
-// (MPL-2.0 preferred; MPL-2.0 required for Hex.pm)
+// (MPL-2.0 required for Hex.pm)
 //
 // k9_gleam/renderer — Render a K9 Component AST back to .k9 text.
 //
