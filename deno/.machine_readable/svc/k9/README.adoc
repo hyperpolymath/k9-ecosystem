@@ -162,7 +162,7 @@ git clone https://github.com/{{OWNER}}/k9-svc.git
 - **K9-SVC Specification:** https://github.com/{{OWNER}}/k9-svc/blob/main/SPEC.adoc
 - **K9 User Guide:** https://github.com/{{OWNER}}/k9-svc/blob/main/GUIDE.adoc
 - **Security Documentation:** https://github.com/{{OWNER}}/k9-svc/blob/main/docs/SECURITY-FAQ.adoc
-- **IANA Media Type:** `application/vnd.k9+nickel`
+- **IANA Media Type:** `application/vnd.k9`
 
 == Contributing
 

@@ -12,7 +12,7 @@
 --   pandoc -f k9-reader.lua component.k9.ncl -o docs.html
 --   pandoc -f k9-reader.lua component.k9.ncl -t markdown
 --
--- Media type: application/vnd.k9+nickel (IANA registration pending)
+-- Media type: application/vnd.k9 (IANA registration pending)
 
 function Reader(input, reader_options)
   local source = tostring(input)

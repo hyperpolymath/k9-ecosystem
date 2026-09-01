@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: MPL-2.0 -->
 <!-- K9 SVC MIME type definition for Linux/Freedesktop -->
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-  <mime-type type="application/vnd.k9+nickel">
+  <mime-type type="application/vnd.k9">
     <comment>K9 Self-Validating Component</comment>
     <comment xml:lang="en">K9 Self-Validating Component (Alpha Breed)</comment>
     <comment xml:lang="de">K9 Selbstvalidierende Komponente</comment>

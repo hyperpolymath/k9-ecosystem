@@ -19,7 +19,7 @@ let component_pedigree = {
   metadata = {
     name = "example-deploy",
     version = "1.0.0",
-    breed = "application/vnd.k9+nickel",
+    breed = "application/vnd.k9",
     magic_number = "K9!",
     description = "Example deployment component (Hunt level)",
   },

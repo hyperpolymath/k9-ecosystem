@@ -163,7 +163,7 @@ git clone https://github.com/hyperpolymath/standards.git
 - **K9-SVC Specification:** https://github.com/hyperpolymath/standards/blob/main/k9-svc/SPEC.adoc
 - **K9 User Guide:** https://github.com/hyperpolymath/standards/blob/main/k9-svc/GUIDE.adoc
 - **Security Documentation:** https://github.com/hyperpolymath/standards/blob/main/k9-svc/docs/SECURITY-FAQ.adoc
-- **IANA Media Type:** `application/vnd.k9+nickel`
+- **IANA Media Type:** `application/vnd.k9`
 
 == Contributing
 

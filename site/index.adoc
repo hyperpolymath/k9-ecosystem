@@ -12,7 +12,7 @@ its own guarantees. Components validate themselves, with a trust model
 that scales from inert data to cryptographically signed execution.
 
 [.badge]#v1.0.0-alpha# [.badge]#Nickel contractiles# [.badge]#.k9 /
-.k9.ncl# [.badge]#application/vnd.k9+nickel# [.badge]#MPL-2.0 /
+.k9.ncl# [.badge]#application/vnd.k9# [.badge]#MPL-2.0 /
 CC-BY-SA-4.0#
 
 Get started Read the spec GitHub
@@ -48,7 +48,7 @@ escalation.
 
 First-class media type
 
-application/vnd.k9+nickel — registered, addressable, toolable.
+application/vnd.k9 — registered, addressable, toolable.
 
 === A taste
 

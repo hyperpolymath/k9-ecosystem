@@ -46,7 +46,7 @@ Unsigned level-3 components are refused — escalation is never implicit.
 === Files & types
 
 * Extensions: `+.k9+`, `+.k9.ncl+`
-* Media type: `+application/vnd.k9+nickel+`
+* Media type: `+application/vnd.k9+`
 * Encoding: UTF-8
 
 === Tooling

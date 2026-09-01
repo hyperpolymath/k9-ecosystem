@@ -36,7 +36,7 @@ let component_pedigree = {
   metadata = {
     name = "container-deploy-stack",
     version = "1.0.0",
-    breed = "application/vnd.k9+nickel",
+    breed = "application/vnd.k9",
     magic_number = "K9!",
     description = "Multi-service container deployment with rolling updates and rollback",
   },
