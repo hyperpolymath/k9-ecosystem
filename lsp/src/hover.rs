@@ -141,7 +141,7 @@ pub fn hover_at(text: &str, position: Position) -> Option<Hover> {
             "Pedigree Field: breed",
             "**`breed`** — MIME Type Identifier\n\n\
              The MIME type for this component. Defaults to \
-             `application/vnd.k9+nickel`.\n\n\
+             `application/vnd.k9`.\n\n\
              **Required:** No (has default)\n\
              **Type:** `String`\n\n\
              _See: pedigree.ncl § Metadata_",

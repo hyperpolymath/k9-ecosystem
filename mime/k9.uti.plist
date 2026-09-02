@@ -27,7 +27,7 @@
           <string>k9.ncl</string>
         </array>
         <key>public.mime-type</key>
-        <string>application/vnd.k9+nickel</string>
+        <string>application/vnd.k9</string>
       </dict>
     </dict>
   </array>

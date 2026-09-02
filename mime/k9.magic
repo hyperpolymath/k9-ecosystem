@@ -7,5 +7,5 @@
 0       string          K9!             K9 Self-Validating Component
 >3      byte            0x0A            \b, newline follows
 >3      byte            0x20            \b, space follows
-!:mime  application/vnd.k9+nickel
+!:mime  application/vnd.k9
 !:ext   k9/k9.ncl

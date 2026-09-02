@@ -16,7 +16,7 @@ repository.
 |===
 |Property |Value
 |Extensions |`+.k9+`, `+.k9.ncl+`
-|Media type |`+application/vnd.k9+nickel+`
+|Media type |`+application/vnd.k9+`
 |Encoding |UTF-8
 |Built on |Nickel, Just
 |Licence |MPL-2.0 (code), CC-BY-SA-4.0 (docs)

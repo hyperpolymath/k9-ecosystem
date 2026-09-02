@@ -18,7 +18,7 @@
 --
 -- Round-trip: pandoc -f k9.lua input.k9.ncl -t k9-writer.lua -o roundtrip.k9.ncl
 --
--- Media type: application/vnd.k9+nickel (IANA registration pending)
+-- Media type: application/vnd.k9 (IANA registration pending)
 -- Spec: /standards/k9-svc/SPEC.adoc
 
 --- Writer entry point. Pandoc calls this with the full document AST.
