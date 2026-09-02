@@ -63,7 +63,7 @@ When releasing a new version:
 * *Version*: 1.0.0
 * *Dependencies*: nickel, just, openssl
 * *Optional*: podman, asciidoctor
-* *License*: PMPL-1.0-or-later
+* *License*: MPL-2.0
 
 === Testing
 

@@ -69,7 +69,7 @@ component: backend
   pedigree:
     origin: https://github.com/example/backend
     author: Dave
-    license: PMPL-1.0-or-later
+    license: MPL-2.0
   security: yard
   recipe:
     tool: cargo

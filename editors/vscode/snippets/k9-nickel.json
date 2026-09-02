@@ -2,7 +2,7 @@
   "K9 Nickel Validator": {
     "prefix": "k9ncl",
     "body": [
-      "# SPDX-License-Identifier: ${1:PMPL-1.0-or-later}",
+      "# SPDX-License-Identifier: ${1:MPL-2.0}",
       "# K9 Nickel Validator: ${2:name}",
       "",
       "let config = import \"${3:config.ncl}\" in",
