@@ -134,7 +134,7 @@ fn pedigree_field_completions() -> Vec<CompletionItem> {
         make_field_completion(
             "spdx_license",
             "SPDX license identifier for the component",
-            "spdx_license = \"${1:PMPL-1.0-or-later}\",",
+            "spdx_license = \"${1:MPL-2.0}\",",
         ),
     ]
 }

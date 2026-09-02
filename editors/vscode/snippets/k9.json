@@ -3,7 +3,7 @@
     "prefix": "k9",
     "body": [
       "K9!",
-      "# SPDX-License-Identifier: ${1:PMPL-1.0-or-later}",
+      "# SPDX-License-Identifier: ${1:MPL-2.0}",
       "",
       "name: ${2:validator-name}",
       "version: ${3:0.1.0}",

@@ -53,7 +53,7 @@ LABEL org.opencontainers.image.title="K9 SVC Runtime"
 LABEL org.opencontainers.image.description="Self-Validating Component runtime environment"
 LABEL org.opencontainers.image.version="1.0.0-alpha"
 LABEL org.opencontainers.image.vendor="hyperpolymath"
-LABEL org.opencontainers.image.licenses="PMPL-1.0-or-later"
+LABEL org.opencontainers.image.licenses="MPL-2.0"
 LABEL org.opencontainers.image.source="https://github.com/hyperpolymath/standards/tree/main/k9-svc"
 
 # Install minimal runtime dependencies via apk.

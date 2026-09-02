@@ -14,5 +14,4 @@
   (synopsis "k9-showcase")
   (description "k9-showcase — part of the hyperpolymath ecosystem.")
   (home-page "https://github.com/hyperpolymath/k9-showcase")
-  (license ((@@ (guix licenses) license) "MPL-2.0"
-             "https://github.com/hyperpolymath/palimpsest-license")))
+  (license (@ (guix licenses) mpl2.0)))

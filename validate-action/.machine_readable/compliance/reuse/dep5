@@ -3,7 +3,7 @@ Upstream-Name: k9-validate-action
 Upstream-Contact: Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 Source: https://github.com/hyperpolymath/k9-validate-action
 
-# Default: all files are PMPL-1.0-or-later
+# Default: all files are MPL-2.0 (code) / CC-BY-SA-4.0 (docs)
 Files: *
 Copyright: 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
 License: MPL-2.0 (code) / CC-BY-SA-4.0 (docs)

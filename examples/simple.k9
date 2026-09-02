@@ -13,7 +13,7 @@ metadata:
   version: 1.0.0
   description: A friendly greeting from the K9 pack
   author: hyperpolymath
-  license: PMPL-1.0-or-later
+  license: MPL-2.0
 
 content:
   greeting: "Hello from K9!"
