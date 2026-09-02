@@ -11,7 +11,7 @@
 
 ## License
 
-- SPDX: `PMPL-1.0-or-later` on all new files.
+- SPDX: `MPL-2.0` on all new files (docs: `CC-BY-SA-4.0`).
 - Never use AGPL-3.0.
 - Copyright: `{{AUTHOR}} ({{OWNER}}) <{{AUTHOR_EMAIL}}>`
 

@@ -164,11 +164,11 @@ fn unit_multiple_contracts() {
 fn unit_pedigree_with_license() {
     // Build a component programmatically to verify Pedigree.license field exists.
     let mut ped = Pedigree::new("https://example.com/licensed", "Frank");
-    ped.license = Some("PMPL-1.0-or-later".to_string());
+    ped.license = Some("MPL-2.0".to_string());
     let comp = Component::new("licensed", "0.1.0", ped, SecurityLevel::Hunt);
     assert_eq!(
         comp.pedigree.license.as_deref(),
-        Some("PMPL-1.0-or-later"),
+        Some("MPL-2.0"),
         "pedigree.license should be stored"
     );
     // Render and check output.

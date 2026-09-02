@@ -14,5 +14,4 @@
   (synopsis "k9_ex")
   (description "k9_ex — part of the hyperpolymath ecosystem.")
   (home-page "https://github.com/hyperpolymath/k9_ex")
-  (license ((@@ (guix licenses) license) "MPL-2.0"
-             "https://github.com/hyperpolymath/palimpsest-license")))
+  (license (@ (guix licenses) mpl2.0)))

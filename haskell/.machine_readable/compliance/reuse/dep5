@@ -3,7 +3,7 @@ Upstream-Name: {{PROJECT_NAME}}
 Upstream-Contact: {{AUTHOR}} <{{AUTHOR_EMAIL}}>
 Source: https://github.com/{{OWNER}}/{{REPO}}
 
-# Default: all files are PMPL-1.0-or-later
+# Default: all files are MPL-2.0 (code) / CC-BY-SA-4.0 (docs)
 Files: *
 Copyright: {{CURRENT_YEAR}} {{AUTHOR}} ({{OWNER}}) <{{AUTHOR_EMAIL}}>
 License: MPL-2.0 (code) / CC-BY-SA-4.0 (docs)

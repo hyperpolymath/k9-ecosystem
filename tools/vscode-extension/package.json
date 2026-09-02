@@ -8,7 +8,7 @@
     "name": "Jonathan D.A. Jewell",
     "email": "j.d.a.jewell@open.ac.uk"
   },
-  "license": "PMPL-1.0-or-later",
+  "license": "MPL-2.0",
   "engines": {
     "vscode": "^1.75.0"
   },

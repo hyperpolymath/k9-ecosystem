@@ -564,7 +564,7 @@ Generated from: `{}`
 
 ## License
 
-PMPL-1.0-or-later
+MPL-2.0
 "#,
         config.name,
         config.name,

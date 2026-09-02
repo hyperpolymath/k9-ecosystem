@@ -372,7 +372,7 @@ See link:CONTRIBUTING.adoc[CONTRIBUTING.adoc] for guidelines.
 
 == License
 
-PMPL-1.0-or-later. See link:LICENSE[LICENSE].
+MPL-2.0. See link:LICENSE[LICENSE].
 
 == Related Projects
 
