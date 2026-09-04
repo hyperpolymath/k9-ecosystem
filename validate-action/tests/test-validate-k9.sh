@@ -7,6 +7,8 @@ ACTION_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 FIXTURE_DIR=$(mktemp -d)
 trap 'rm -rf "$FIXTURE_DIR"' EXIT
 
+# Write valid Nickel-dialect K9 test fixtures demonstrating various pedigree
+# patterns: imported schema, base contract with magic_number, and schema application.
 write_valid_nickel() {
     mkdir -p "$FIXTURE_DIR/contracts"
     cat > "$FIXTURE_DIR/contracts/imported.k9.ncl" <<'EOF'
@@ -36,6 +38,7 @@ pedigree.K9Pedigree {
 EOF
 }
 
+# Write a valid plain-dialect K9 test fixture with metadata block and security_level.
 write_valid_plain() {
     cat > "$FIXTURE_DIR/contracts/plain.k9" <<'EOF'
 K9!
@@ -47,6 +50,8 @@ metadata:
 EOF
 }
 
+# Write K9-suffixed files that should be skipped by default ignore rules:
+# estate coordination files, session configs, and generated contractiles.
 write_default_ignored_non_contracts() {
     mkdir -p "$FIXTURE_DIR/session" "$FIXTURE_DIR/.machine_readable/self-validating"
     cat > "$FIXTURE_DIR/coordination.k9" <<'EOF'
@@ -72,6 +77,8 @@ security.non-root : bool { == true }
 EOF
 }
 
+# Write an invalid K9 pedigree contract (has K9! marker but missing required
+# pedigree fields) to test validation failure paths.
 write_invalid_target() {
     cat > "$FIXTURE_DIR/contracts/invalid-target.k9" <<'EOF'
 K9!

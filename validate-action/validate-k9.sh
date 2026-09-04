@@ -77,6 +77,8 @@ while IFS= read -r fragment; do
     PATHS_IGNORE+=("$fragment")
 done <<< "$PATHS_IGNORE_RAW"
 
+# Check if a file path matches any configured ignore fragment.
+# Returns 0 (true) if the path should be skipped, 1 (false) otherwise.
 path_ignored() {
     local path="$1" fragment
     for fragment in "${PATHS_IGNORE[@]}"; do
@@ -85,12 +87,9 @@ path_ignored() {
     return 1
 }
 
-# The extension is shared by a few estate protocols and generated
-# contractiles which are not K9 pedigree components. A target must carry at
-# least one unambiguous pedigree signal. This keeps a lexical validator from
-# inventing pedigree requirements for a different language while preserving
-# negative tests: a file with K9!, magic_number, pedigree metadata, or a K9
-# schema reference is a target even when the rest of the contract is broken.
+# Check if a file is a K9 pedigree contract by searching for unambiguous
+# pedigree signals (K9!, magic_number, pedigree metadata, or K9 schema reference).
+# Returns 0 (true) if the file is a pedigree contract, 1 (false) otherwise.
 is_pedigree_contract() {
     local file="$1"
     grep -Eq \

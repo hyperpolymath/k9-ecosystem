@@ -6,11 +6,14 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 failures=0
 
+# Report a membership validation error and increment the failure counter.
 fail() {
   printf 'membership error: %s\n' "$1" >&2
   failures=$((failures + 1))
 }
 
+# Check that a member repository is correctly registered in ECOSYSTEM.a2ml
+# and .gitmodules with proper URL, branch, and submodule mode.
 check_member() {
   local group="$1"
   local name="$2"
