@@ -7,7 +7,7 @@
 The coordination hub and satellite for K9 self-validating components and Nickel contractiles.
 
 == Find a member
-Locate implementations, tooling, CI, and examples via `.machine_readable/6a2/ECOSYSTEM.a2ml`.
+Locate implementations, tooling, CI, and examples via `.machine_readable/descriptiles/ECOSYSTEM.a2ml`.
 
 == Use the specification
 The K9 contractile spec lives upstream in `hyperpolymath/standards`, pinned by tag.

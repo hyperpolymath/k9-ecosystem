@@ -6,11 +6,14 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 failures=0
 
+# Report a membership validation error and increment the failure counter.
 fail() {
   printf 'membership error: %s\n' "$1" >&2
   failures=$((failures + 1))
 }
 
+# Check that a member repository is correctly registered in ECOSYSTEM.a2ml
+# and .gitmodules with proper URL, branch, and submodule mode.
 check_member() {
   local group="$1"
   local name="$2"
@@ -21,8 +24,8 @@ check_member() {
   local actual_branch
   local mode
 
-  if ! grep -Fq "(member \"${name}\" (group \"${group}\")" .machine_readable/6a2/ECOSYSTEM.a2ml; then
-    fail ".machine_readable/6a2/ECOSYSTEM.a2ml missing ${group}/${name}"
+  if ! grep -Fq "(member \"${name}\" (group \"${group}\")" .machine_readable/descriptiles/ECOSYSTEM.a2ml; then
+    fail ".machine_readable/descriptiles/ECOSYSTEM.a2ml missing ${group}/${name}"
   fi
 
   actual_url="$(git config -f .gitmodules --get "${module}.url" || true)"
@@ -54,8 +57,8 @@ check_member ci k9-validate-action
 check_member ci k9-pre-commit
 check_member examples k9-showcase
 
-if ! grep -Fq '(related "k9-svc"' .machine_readable/6a2/ECOSYSTEM.a2ml; then
-  fail ".machine_readable/6a2/ECOSYSTEM.a2ml missing future k9-svc related reference"
+if ! grep -Fq '(related "k9-svc"' .machine_readable/descriptiles/ECOSYSTEM.a2ml; then
+  fail ".machine_readable/descriptiles/ECOSYSTEM.a2ml missing future k9-svc related reference"
 fi
 
 if [[ "${failures}" -gt 0 ]]; then

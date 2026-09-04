@@ -13,7 +13,12 @@ compliance, pedigree completeness, and hunt-level signature requirements.
 
 == What It Validates
 
-The action performs five checks on every K9 file discovered:
+The action performs five checks on every target K9 pedigree contract
+discovered. Vendored/fixture paths and estate coordination/session files that
+reuse the suffix without being pedigree contracts are excluded by default.
+Other `.k9`-suffixed files are treated as targets only when they contain a
+pedigree signal such as `K9!`, `magic_number`, a pedigree block, or a K9 schema
+reference. Non-pedigree naming collisions are reported as notices and skipped.
 
 [cols="1,1,3"]
 |===
@@ -21,7 +26,8 @@ The action performs five checks on every K9 file discovered:
 
 | K9! magic number
 | Error
-| The first non-empty line must be exactly `K9!`.
+| Plain `.k9` files must begin with `K9!`. Nickel `.k9.ncl` files may instead
+  carry `magic_number = "K9!"` or apply/import/merge the K9 pedigree schema.
 
 | SPDX header
 | Warning
@@ -34,8 +40,9 @@ The action performs five checks on every K9 file discovered:
 
 | Security level
 | Error
-| The `leash` or `security_level` field must be one of: `kennel`, `yard`,
-  `hunt` (case-insensitive). Nickel enum tick syntax (`'Kennel`) is handled.
+| The `leash`, `security_level`, or schema-v1 `trust_level` field must be one
+  of: `kennel`, `yard`, `hunt` (case-insensitive). Nickel enum tick syntax
+  (`'Kennel`) is handled.
 
 | Hunt-level signature
 | Error
@@ -60,7 +67,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: hyperpolymath/standards/k9-svc/actions/validate@main
+      # Replace <full-commit-sha> with the reviewed immutable revision.
+      - uses: hyperpolymath/k9-ecosystem/validate-action@<full-commit-sha>
         with:
           path: '.'        # Directory to scan (default: repo root)
           strict: 'false'  # Promote warnings to errors (default: false)
@@ -70,10 +78,11 @@ jobs:
 
 [source,yaml]
 ----
-      - uses: hyperpolymath/standards/k9-svc/actions/validate@main
+      - uses: hyperpolymath/k9-ecosystem/validate-action@<full-commit-sha>
         id: k9
       - run: |
           echo "Scanned: ${{ steps.k9.outputs.files-scanned }}"
+          echo "Skipped: ${{ steps.k9.outputs.files-skipped }}"
           echo "Errors:  ${{ steps.k9.outputs.errors }}"
           echo "Warnings: ${{ steps.k9.outputs.warnings }}"
 ----
@@ -93,6 +102,11 @@ jobs:
 | `false`
 | When `true`, all warnings are promoted to errors and the action fails on any
   validation issue.
+
+| `paths-ignore`
+| vendored, fixture, coordination/session defaults
+| Newline-separated path fragments to exclude. A supplied value replaces the
+  defaults. Pass an explicit empty string to scan every `.k9`/`.k9.ncl` file.
 |===
 
 == Outputs
@@ -103,6 +117,10 @@ jobs:
 
 | `files-scanned`
 | Total number of K9 files discovered and processed.
+
+| `files-skipped`
+| Number of discovered K9-suffixed files excluded by path or because they do
+  not carry a pedigree-contract signal.
 
 | `errors`
 | Count of validation errors found. Non-zero causes exit code 1.
