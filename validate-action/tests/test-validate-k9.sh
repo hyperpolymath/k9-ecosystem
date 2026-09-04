@@ -82,6 +82,10 @@ EOF
 # signature = "not-reachable"
 { unrelated = true }
 EOF
+    cat > "$FIXTURE_DIR/contracts/quoted-schema-note.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{ note = "K9Pedigree and pedigree_schema are documentation here" }
+EOF
 }
 
 # Write an invalid K9 pedigree contract (has K9! marker but missing required
@@ -135,8 +139,8 @@ write_default_ignored_non_contracts
 
 pass_output=$(INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh")
 grep -q 'Files scanned: 4' <<< "$pass_output"
-grep -q 'Files skipped: 5' <<< "$pass_output"
-grep -q '3 by path, 2 without a pedigree signal' <<< "$pass_output"
+grep -q 'Files skipped: 6' <<< "$pass_output"
+grep -q '3 by path, 3 without a pedigree signal' <<< "$pass_output"
 grep -q 'Errors:        0' <<< "$pass_output"
 
 # Positive control: default exclusions must not turn the validator into a

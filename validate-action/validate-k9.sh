@@ -124,12 +124,50 @@ comment_free_file() {
     done < "$file"
 }
 
+# Replace double-quoted string contents with spaces before classifying a file.
+# Schema words in prose or metadata values are not reachable K9 syntax, while
+# structural expressions such as `pedigree.K9Pedigree` remain visible.
+mask_k9_quoted_text() {
+    local input="$1" output="" char
+    local in_double=false escaped=false i
+    for ((i = 0; i < ${#input}; i++)); do
+        char="${input:i:1}"
+        if [[ "$in_double" == "true" ]]; then
+            if [[ "$escaped" == "true" ]]; then
+                output+=" "
+                escaped=false
+            elif [[ "$char" == "\\" ]]; then
+                output+=" "
+                escaped=true
+            elif [[ "$char" == '"' ]]; then
+                output+="$char"
+                in_double=false
+            else
+                output+=" "
+            fi
+        elif [[ "$char" == '"' ]]; then
+            output+="$char"
+            in_double=true
+        else
+            output+="$char"
+        fi
+    done
+    printf '%s\n' "$output"
+}
+
+structural_syntax_file() {
+    local file="$1" line
+    while IFS= read -r line; do
+        mask_k9_quoted_text "$(strip_k9_comment "$line")"
+    done < "$file"
+}
+
 # Check if a file is a K9 pedigree contract by searching for unambiguous
 # pedigree signals (K9!, magic_number, pedigree metadata, or K9 schema reference).
 # Returns 0 (true) if the file is a pedigree contract, 1 (false) otherwise.
 is_pedigree_contract() {
     local file="$1" syntax_content
-    syntax_content=$(comment_free_file "$file")
+    syntax_content=$(structural_syntax_file "$file")
     grep -Eq \
         '^[[:space:]]*K9![[:space:]]*$|^[[:space:]]*magic_number[[:space:]]*[=:]|^[[:space:]]*(let[[:space:]]+)?[A-Za-z_]*pedigree[[:space:]]*=|^[[:space:]]*(metadata|pedigree):[[:space:]]*$|K9Pedigree|pedigree_schema' \
         <<< "$syntax_content"
