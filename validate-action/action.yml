@@ -9,7 +9,8 @@ name: 'Validate K9 Configurations'
 description: >-
   Scan and validate K9 configuration files (.k9 and .k9.ncl) in your
   repository. Checks for K9! magic number, pedigree block (name, version,
-  security_level), valid security levels (kennel/yard/hunt), and ensures
+  security_level, or schema-v1 trust_level), valid security levels
+  (kennel/yard/hunt), and ensures
   hunt-level files include a signature field.
 author: 'Jonathan D.A. Jewell'
 
@@ -30,11 +31,34 @@ inputs:
       will fail on any validation issue. Defaults to false.
     required: false
     default: 'false'
+  paths-ignore:
+    description: >-
+      Newline-separated path fragments to skip. Each fragment is matched
+      against the discovered file path. The defaults exclude vendored and
+      fixture trees plus estate-standard coordination/session files that use
+      the K9 suffix but are not pedigree contracts. Pass an empty string to
+      scan every matching file.
+    required: false
+    default: |
+      vendor/
+      vendored/
+      verified-container-spec/
+      .audittraining/
+      integration/fixtures/
+      test/fixtures/
+      tests/fixtures/
+      absolute-zero/
+      coordination.k9
+      session/custom-checks.k9
+      self-validating/methodology-guard.k9.ncl
 
 outputs:
   files-scanned:
     description: 'Number of K9 files scanned'
     value: ${{ steps.validate.outputs.files_scanned }}
+  files-skipped:
+    description: 'Number of non-target K9 paths skipped'
+    value: ${{ steps.validate.outputs.files_skipped }}
   errors:
     description: 'Number of validation errors found'
     value: ${{ steps.validate.outputs.errors }}
@@ -51,5 +75,6 @@ runs:
       env:
         INPUT_PATH: ${{ inputs.path }}
         INPUT_STRICT: ${{ inputs.strict }}
+        INPUT_PATHS_IGNORE: ${{ inputs.paths-ignore }}
       run: |
         "${GITHUB_ACTION_PATH}/validate-k9.sh"

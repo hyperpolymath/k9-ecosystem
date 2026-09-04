@@ -13,15 +13,15 @@
   (upstream "hyperpolymath/standards")
   (machine-readable
     (anchor ".machine_readable/anchors/ANCHOR.a2ml")
-    (ecosystem ".machine_readable/6a2/ECOSYSTEM.a2ml")
-    (state ".machine_readable/6a2/STATE.a2ml")
-    (meta ".machine_readable/6a2/META.a2ml")
-    (playbook ".machine_readable/6a2/PLAYBOOK.a2ml")
-    (agentic ".machine_readable/6a2/AGENTIC.a2ml")
-    (neurosym ".machine_readable/6a2/NEUROSYM.a2ml"))
+    (ecosystem ".machine_readable/descriptiles/ECOSYSTEM.a2ml")
+    (state ".machine_readable/descriptiles/STATE.a2ml")
+    (meta ".machine_readable/descriptiles/META.a2ml")
+    (playbook ".machine_readable/descriptiles/PLAYBOOK.a2ml")
+    (agentic ".machine_readable/descriptiles/AGENTIC.a2ml")
+    (neurosym ".machine_readable/descriptiles/NEUROSYM.a2ml"))
   (owned-here
     (conformance "conformance/")
-    (membership ".machine_readable/6a2/ECOSYSTEM.a2ml")
+    (membership ".machine_readable/descriptiles/ECOSYSTEM.a2ml")
     (drift-ci ".github/workflows/anchor-drift.yml"))
   (not-owned-here
     (spec (repo "hyperpolymath/standards") (path "docs/CONTRACTILE-SPEC.adoc") (pin "TODO-tag"))

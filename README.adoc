@@ -15,7 +15,7 @@ link:.machine_readable/anchors/ANCHOR.a2ml[ANCHOR.a2ml] by tag.
 
 == Owned Here
 
-* link:.machine_readable/6a2/ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] records the member
+* link:.machine_readable/descriptiles/ECOSYSTEM.a2ml[ECOSYSTEM.a2ml] records the member
   repository manifest.
 * link:conformance/manifest.a2ml[conformance/manifest.a2ml] indexes the local
   positive and negative K9 fixtures.
@@ -38,8 +38,8 @@ member submodule. Whether the spec ultimately lives in `standards` or a new
 Coordination metadata lives under `.machine_readable/` only:
 
 * `anchors/ANCHOR.a2ml` — authority anchor and upstream pins.
-* `6a2/ECOSYSTEM.a2ml` — membership manifest.
-* `6a2/{STATE,META,PLAYBOOK,AGENTIC,NEUROSYM}.a2ml` — hub state, ADRs, playbook,
+* `descriptiles/ECOSYSTEM.a2ml` — membership manifest.
+* `descriptiles/{STATE,META,PLAYBOOK,AGENTIC,NEUROSYM}.a2ml` — hub state, ADRs, playbook,
   and agentic / neuro-symbolic notes.
 
 link:0-AI-MANIFEST.a2ml[0-AI-MANIFEST.a2ml] at the repository root is the entry

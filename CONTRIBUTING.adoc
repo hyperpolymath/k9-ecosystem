@@ -16,7 +16,7 @@ We welcome contributions in many forms:
 `+conformance/valid/+` and `+conformance/invalid/+` (keep
 `+conformance/manifest.a2ml+` in sync).
 * *Membership:* Propose member additions/removals via
-`+.machine_readable/6a2/ECOSYSTEM.a2ml+`, kept in lockstep with
+`+.machine_readable/descriptiles/ECOSYSTEM.a2ml+`, kept in lockstep with
 `+.gitmodules+` and `+scripts/check-membership.sh+`.
 * *Drift CI & tooling:* Improve `+.github/workflows/anchor-drift.yml+`
 or the helper `+scripts/+`.

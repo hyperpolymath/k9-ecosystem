@@ -10,7 +10,7 @@ Clone the hub and initialise member submodules (or run `scripts/init-submodules.
 Run `scripts/check-membership.sh` to align manifest, `.gitmodules`, and gitlinks.
 
 == Add a member or conformance case
-Follow the `add-member` / `add-conformance-case` steps in `.machine_readable/6a2/PLAYBOOK.a2ml`.
+Follow the `add-member` / `add-conformance-case` steps in `.machine_readable/descriptiles/PLAYBOOK.a2ml`.
 
 == Run conformance locally
 Validate `conformance/valid` (0 errors) and `conformance/invalid` strict (every case errors).

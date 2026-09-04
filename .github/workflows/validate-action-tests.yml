@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MPL-2.0
+name: Validate K9 action
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/validate-action-tests.yml"
+      - "validate-action/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/validate-action-tests.yml"
+      - "validate-action/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  regression-tests:
+    name: K9 validator regression tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check shell syntax
+        run: bash -n validate-action/validate-k9.sh validate-action/tests/test-validate-k9.sh
+      - name: Run regression and positive-control tests
+        run: validate-action/tests/test-validate-k9.sh
