@@ -8,7 +8,7 @@
     (add-member
       (step "Create or identify the member repo under hyperpolymath/")
       (step "git submodule add -b main https://github.com/hyperpolymath/<name>.git members/<group>/<name>")
-      (step "Add a (member ...) entry to .machine_readable/6a2/ECOSYSTEM.a2ml and a check_member line to scripts/check-membership.sh")
+      (step "Add a (member ...) entry to .machine_readable/descriptiles/ECOSYSTEM.a2ml and a check_member line to scripts/check-membership.sh")
       (step "Run scripts/check-membership.sh until it passes"))
     (add-conformance-case
       (step "Add a .k9.ncl fixture under conformance/valid or conformance/invalid")
@@ -18,7 +18,7 @@
     (bump-upstream-pin
       (step "Cut or identify the target tag in hyperpolymath/standards")
       (step "Replace pin = TODO-tag in .machine_readable/anchors/ANCHOR.a2ml under [upstream.spec] and [upstream.governance]")
-      (step "Mirror the pin in .machine_readable/6a2/ECOSYSTEM.a2ml (upstream ...)")
+      (step "Mirror the pin in .machine_readable/descriptiles/ECOSYSTEM.a2ml (upstream ...)")
       (step "Make the upstream-pins CI gate enforcing")))
   (open-threads
     (thread "Resolve spec home: standards/CONTRACTILE-SPEC vs create k9-svc")

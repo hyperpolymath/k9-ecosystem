@@ -75,6 +75,13 @@ EOF
 [must]
 security.non-root : bool { == true }
 EOF
+    cat > "$FIXTURE_DIR/contracts/comment-only.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+# magic_number = "K9!"
+# pedigree = { name = "commented", version = "1.0.0", leash = 'Hunt }
+# signature = "not-reachable"
+{ unrelated = true }
+EOF
 }
 
 # Write an invalid K9 pedigree contract (has K9! marker but missing required
@@ -88,14 +95,48 @@ settings:
 EOF
 }
 
+write_commented_required_field_target() {
+    cat > "$FIXTURE_DIR/contracts/commented-required.k9" <<'EOF'
+K9!
+# SPDX-License-Identifier: MPL-2.0
+metadata:
+  # name: this-comment-must-not-satisfy-the-gate
+  version: 1.0.0
+  leash: yard
+EOF
+}
+
+write_commented_signature_target() {
+    cat > "$FIXTURE_DIR/contracts/commented-signature.k9" <<'EOF'
+K9!
+# SPDX-License-Identifier: MPL-2.0
+metadata:
+  name: unsigned-hunt
+  version: 1.0.0
+  leash: hunt
+  # signature: this-comment-must-not-satisfy-the-gate
+EOF
+}
+
+write_legacy_trust_target() {
+    cat > "$FIXTURE_DIR/contracts/legacy-trust.k9" <<'EOF'
+K9!
+# SPDX-License-Identifier: MPL-2.0
+metadata:
+  name: legacy-trust-metadata
+  version: 1.0.0
+  trust_level: internal
+EOF
+}
+
 write_valid_nickel
 write_valid_plain
 write_default_ignored_non_contracts
 
 pass_output=$(INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh")
 grep -q 'Files scanned: 4' <<< "$pass_output"
-grep -q 'Files skipped: 4' <<< "$pass_output"
-grep -q '3 by path, 1 without a pedigree signal' <<< "$pass_output"
+grep -q 'Files skipped: 5' <<< "$pass_output"
+grep -q '3 by path, 2 without a pedigree signal' <<< "$pass_output"
 grep -q 'Errors:        0' <<< "$pass_output"
 
 # Positive control: default exclusions must not turn the validator into a
@@ -106,6 +147,38 @@ if INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh" > "$FIXTURE_DIR/invali
     exit 1
 fi
 grep -q 'Missing pedigree' "$FIXTURE_DIR/invalid.log"
+rm "$FIXTURE_DIR/contracts/invalid-target.k9"
+
+# Commented fields are not reachable syntax and cannot satisfy required fields
+# or the Hunt signature requirement.
+write_commented_required_field_target
+if INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh" \
+    > "$FIXTURE_DIR/commented-required.log" 2>&1; then
+    echo 'expected a commented name field not to satisfy the pedigree gate' >&2
+    exit 1
+fi
+grep -q "missing 'name' field" "$FIXTURE_DIR/commented-required.log"
+rm "$FIXTURE_DIR/contracts/commented-required.k9"
+
+write_commented_signature_target
+if INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh" \
+    > "$FIXTURE_DIR/commented-signature.log" 2>&1; then
+    echo 'expected a commented signature not to satisfy a Hunt contract' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$FIXTURE_DIR/commented-signature.log"
+rm "$FIXTURE_DIR/contracts/commented-signature.k9"
+
+# A legacy pedigree-level trust_level is descriptive metadata, not the
+# schema-v1 policy.trust_level leash fallback.
+write_legacy_trust_target
+legacy_output=$(INPUT_PATH="$FIXTURE_DIR" "$ACTION_DIR/validate-k9.sh")
+grep -q 'No security level (leash/security_level)' <<< "$legacy_output"
+if grep -q "Invalid security level 'internal'" <<< "$legacy_output"; then
+    echo 'legacy trust_level was incorrectly treated as a security level' >&2
+    exit 1
+fi
+rm "$FIXTURE_DIR/contracts/legacy-trust.k9"
 
 # An explicitly empty override disables all defaults, so the non-contract
 # coordination files become visible and make the lexical pedigree gate fail.

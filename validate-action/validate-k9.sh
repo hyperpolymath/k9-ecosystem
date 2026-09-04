@@ -87,14 +87,52 @@ path_ignored() {
     return 1
 }
 
+# Remove K9/YAML/Nickel line comments while preserving hashes inside
+# double-quoted strings. SPDX detection deliberately continues to use the raw
+# file because its marker is itself a comment.
+strip_k9_comment() {
+    local input="$1" output="" char
+    local in_double=false escaped=false i
+    for ((i = 0; i < ${#input}; i++)); do
+        char="${input:i:1}"
+        if [[ "$escaped" == "true" ]]; then
+            output+="$char"
+            escaped=false
+        elif [[ "$in_double" == "true" && "$char" == "\\" ]]; then
+            output+="$char"
+            escaped=true
+        elif [[ "$char" == '"' ]]; then
+            output+="$char"
+            if [[ "$in_double" == "true" ]]; then
+                in_double=false
+            else
+                in_double=true
+            fi
+        elif [[ "$char" == '#' && "$in_double" == "false" ]]; then
+            break
+        else
+            output+="$char"
+        fi
+    done
+    printf '%s\n' "$output"
+}
+
+comment_free_file() {
+    local file="$1" line
+    while IFS= read -r line; do
+        strip_k9_comment "$line"
+    done < "$file"
+}
+
 # Check if a file is a K9 pedigree contract by searching for unambiguous
 # pedigree signals (K9!, magic_number, pedigree metadata, or K9 schema reference).
 # Returns 0 (true) if the file is a pedigree contract, 1 (false) otherwise.
 is_pedigree_contract() {
-    local file="$1"
+    local file="$1" syntax_content
+    syntax_content=$(comment_free_file "$file")
     grep -Eq \
         '^[[:space:]]*K9![[:space:]]*$|^[[:space:]]*magic_number[[:space:]]*[=:]|^[[:space:]]*(let[[:space:]]+)?[A-Za-z_]*pedigree[[:space:]]*=|^[[:space:]]*(metadata|pedigree):[[:space:]]*$|K9Pedigree|pedigree_schema' \
-        "$file"
+        <<< "$syntax_content"
 }
 
 # Outside GitHub Actions GITHUB_OUTPUT is unset; under `set -u` an unset
@@ -167,6 +205,8 @@ normalise_level() {
 # ---------------------------------------------------------------------------
 validate_k9() {
     local file="$1"
+    local syntax_content
+    syntax_content=$(comment_free_file "$file")
     FILES_SCANNED=$((FILES_SCANNED + 1))
 
     # Dialect: .k9.ncl is Nickel source; bare .k9 is the plain dialect.
@@ -203,9 +243,9 @@ validate_k9() {
         local has_marker=false
         if [[ "$first_content_line" == "K9!" ]]; then
             has_marker=true
-        elif grep -Eq '^[[:space:]]*magic_number[[:space:]]*=[[:space:]]*"K9!"' "$file"; then
+        elif grep -Eq '^[[:space:]]*magic_number[[:space:]]*=[[:space:]]*"K9!"' <<< "$syntax_content"; then
             has_marker=true
-        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|&[[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)|import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' "$file"; then
+        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|&[[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)|import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' <<< "$syntax_content"; then
             has_marker=true
         fi
 
@@ -247,10 +287,17 @@ validate_k9() {
     local security_level_value=""
     local security_level_line=0
     local has_signature_field=false
+    local in_policy=false
+    local policy_depth=0
 
     line_num=0
     while IFS= read -r line; do
         line_num=$((line_num + 1))
+
+        if [[ "$line" =~ (^|[[:space:]\{,])policy[[:space:]]*=[[:space:]]*\{ ]]; then
+            in_policy=true
+            policy_depth=0
+        fi
 
         # Pedigree construct, Nickel forms: direct, let-bound, schema
         # application (`K9Pedigree { ... }`), or schema merge.
@@ -282,22 +329,38 @@ validate_k9() {
             has_primary_security_level=true
             security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
             security_level_line=$line_num
-        elif [[ "$has_primary_security_level" == "false" ]] \
-             && [[ "$line" =~ (^|[[:space:]\{,])trust_level[[:space:]]*[=:][[:space:]]*([^,\}\#]+) ]]; then
-            # In the v1 pedigree schema `policy.trust_level` is the leash.
-            # Older estate files also use `trust_level` as a free-text
-            # description alongside an explicit `leash`; the explicit field
-            # wins regardless of source order.
-            has_security_level=true
-            security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
-            security_level_line=$line_num
+        elif [[ "$has_primary_security_level" == "false" ]]; then
+            local trust_is_policy=false
+            if [[ "$line" =~ policy[[:space:]]*\.[[:space:]]*trust_level[[:space:]]*[=:] ]] \
+               || [[ "$in_policy" == "true" && "$line" =~ (^|[[:space:]\{,])trust_level[[:space:]]*[=:] ]] \
+               || [[ "$line" =~ (^|[[:space:]\{,])policy[[:space:]]*=[[:space:]]*\{[^\}]*trust_level[[:space:]]*[=:] ]]; then
+                trust_is_policy=true
+            fi
+            if [[ "$trust_is_policy" == "true" ]] \
+               && [[ "$line" =~ trust_level[[:space:]]*[=:][[:space:]]*([^,\}]+) ]]; then
+                # Only schema-v1 policy.trust_level is a leash. Legacy
+                # pedigree-level trust_level is descriptive metadata.
+                has_security_level=true
+                security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
+                security_level_line=$line_num
+            fi
         fi
 
         # Signature fields
         if [[ "$line" =~ (^|[[:space:]\{,])(signature|signature_required)[[:space:]]*[=:] ]]; then
             has_signature_field=true
         fi
-    done < "$file"
+
+        if [[ "$in_policy" == "true" ]]; then
+            local without_open="${line//\{/}"
+            local without_close="${line//\}/}"
+            policy_depth=$((policy_depth + ${#line} - ${#without_open} - ${#line} + ${#without_close}))
+            if (( policy_depth <= 0 )); then
+                in_policy=false
+                policy_depth=0
+            fi
+        fi
+    done <<< "$syntax_content"
 
     if [[ "$has_pedigree" == "false" ]]; then
         report_issue "error" "$file" 1 \
