@@ -6,11 +6,17 @@ on:
     paths:
       - ".github/workflows/validate-action-tests.yml"
       - "validate-action/**"
+      - "editors/vscode/container/.gatekeeper.yaml"
+      - "pandoc/container/.gatekeeper.yaml"
+      - "site/**"
   push:
     branches: [main]
     paths:
       - ".github/workflows/validate-action-tests.yml"
       - "validate-action/**"
+      - "editors/vscode/container/.gatekeeper.yaml"
+      - "pandoc/container/.gatekeeper.yaml"
+      - "site/**"
   workflow_dispatch:
 
 permissions:
@@ -27,3 +33,12 @@ jobs:
         run: bash -n validate-action/validate-k9.sh validate-action/tests/test-validate-k9.sh
       - name: Run regression and positive-control tests
         run: validate-action/tests/test-validate-k9.sh
+      - name: Check archive-link instrument
+        run: bash validate-action/tests/test-archive-links.sh
+      - name: Verify links in the actual Git archive
+        shell: bash
+        run: |
+          archive_root="$RUNNER_TEMP/k9-archive"
+          mkdir -p "$archive_root"
+          git archive HEAD | tar -x -C "$archive_root"
+          bash validate-action/tests/check-archive-links.sh "$archive_root"
