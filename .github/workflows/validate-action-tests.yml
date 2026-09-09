@@ -3,20 +3,8 @@ name: Validate K9 action
 
 on:
   pull_request:
-    paths:
-      - ".github/workflows/validate-action-tests.yml"
-      - "validate-action/**"
-      - "editors/vscode/container/.gatekeeper.yaml"
-      - "pandoc/container/.gatekeeper.yaml"
-      - "site/**"
   push:
     branches: [main]
-    paths:
-      - ".github/workflows/validate-action-tests.yml"
-      - "validate-action/**"
-      - "editors/vscode/container/.gatekeeper.yaml"
-      - "pandoc/container/.gatekeeper.yaml"
-      - "site/**"
   workflow_dispatch:
 
 permissions:
@@ -26,6 +14,7 @@ jobs:
   regression-tests:
     name: K9 validator regression tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out source
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
