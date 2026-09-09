@@ -7,6 +7,8 @@ set -euo pipefail
 
 repo_root=$(git rev-parse --show-toplevel)
 
+# Check that a symlink target resolves inside the repository and exists.
+# Returns 10 for escaping targets and 11 for dangling targets.
 check_target() {
   local root="$1" link_path="$2" target="$3" root_real resolved
   root_real=$(realpath -m "$root")
