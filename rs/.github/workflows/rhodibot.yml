@@ -68,9 +68,9 @@ jobs:
           fi
 
           # --- 3. Delete duplicate format files ---
-          if [ -f "CONTRIBUTING.md" ] && [ -f "../../../.github/CONTRIBUTING.md" ]; then
-            rm ../../../.github/CONTRIBUTING.md
-            FIXES="$FIXES\n- Deleted duplicate \`../../../.github/CONTRIBUTING.md\` (keeping .md for GitHub)"
+          if [ -f ".github/CONTRIBUTING.md" ] && [ -f "rs/.github/CONTRIBUTING.md" ]; then
+            rm rs/.github/CONTRIBUTING.md
+            FIXES="$FIXES\n- Deleted duplicate \`rs/.github/CONTRIBUTING.md\` (keeping \`.github/CONTRIBUTING.md\` for GitHub)"
             CHANGED=true
           fi
 
