@@ -252,8 +252,11 @@ normalise_level() {
 # ---------------------------------------------------------------------------
 validate_k9() {
     local file="$1"
-    local syntax_content
+    local syntax_content structural_content
     syntax_content=$(comment_free_file "$file")
+    # Quote-masked copy: a schema name inside a string value is prose, not a
+    # schema application, so the application checks read this copy.
+    structural_content=$(structural_syntax_file "$file")
     FILES_SCANNED=$((FILES_SCANNED + 1))
 
     # Dialect: .k9.ncl is Nickel source; bare .k9 is the plain dialect.
@@ -292,7 +295,9 @@ validate_k9() {
             has_marker=true
         elif grep -Eq '^[[:space:]]*magic_number[[:space:]]*=[[:space:]]*"K9!"' <<< "$syntax_content"; then
             has_marker=true
-        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|[&|][[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)|import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' <<< "$syntax_content"; then
+        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|[&|][[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)' <<< "$structural_content"; then
+            has_marker=true
+        elif grep -Eq 'import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' <<< "$syntax_content"; then
             has_marker=true
         fi
 
@@ -349,11 +354,15 @@ validate_k9() {
         fi
 
         # Pedigree construct, Nickel forms: direct, let-bound, schema
-        # application (`K9Pedigree { ... }`), or schema merge.
-        if [[ "$line" =~ ^[[:space:]]*(let[[:space:]]+)?[A-Za-z_]*pedigree[[:space:]]*= ]] \
-           || [[ "$line" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\{ ]] \
-           || [[ "$line" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\& ]] \
-           || [[ "$line" =~ [\&\|][[:space:]]*([A-Za-z_][A-Za-z0-9_]*\.)?(K9Pedigree|pedigree_schema) ]]; then
+        # application (`K9Pedigree { ... }`), or schema merge. Matched on the
+        # quote-masked line, so `description = "a | schemas.K9Pedigree"` is
+        # not taken for an application.
+        local masked
+        masked="$(mask_k9_quoted_text "$line")"
+        if [[ "$masked" =~ ^[[:space:]]*(let[[:space:]]+)?[A-Za-z_]*pedigree[[:space:]]*= ]] \
+           || [[ "$masked" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\{ ]] \
+           || [[ "$masked" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\& ]] \
+           || [[ "$masked" =~ [\&\|][[:space:]]*([A-Za-z_][A-Za-z0-9_]*\.)?(K9Pedigree|pedigree_schema) ]]; then
             has_pedigree=true
         fi
 
@@ -376,15 +385,26 @@ validate_k9() {
         # quoted or not, is captured whole: the generic value class stops at
         # the first `}` and would cut it to `{{level`.
         # A Nickel binding such as `let leash = import "../leash.ncl" in`
-        # names a module, not a level, so it is not a leash field.
-        if [[ "$line" =~ ^[[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*= ]]; then
-            :
-        elif [[ "$line" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; then
+        # names a module, not a level. Only the binding itself is dropped:
+        # a body on the same line (`in { leash = 'Hunt, ... }`) is still
+        # scanned. Every level field on the line is recorded, not only the
+        # first.
+        local level_scan="$line" level_match line_has_level=false
+        if [[ "$level_scan" =~ ^([[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*=) ]]; then
+            level_scan="${level_scan:${#BASH_REMATCH[1]}}"
+        fi
+        while [[ "$level_scan" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; do
+            level_match="${BASH_REMATCH[0]}"
+            line_has_level=true
             has_security_level=true
             has_primary_security_level=true
-            security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
+            security_level_value="$(normalise_level "$level_match")"
             security_level_line=$line_num
             record_security_level "$security_level_value" "$line_num"
+            level_scan="${level_scan#*"$level_match"}"
+        done
+        if [[ "$line_has_level" == "true" ]]; then
+            :
         elif [[ "$has_primary_security_level" == "false" ]]; then
             local trust_is_policy=false
             if [[ "$line" =~ policy[[:space:]]*\.[[:space:]]*trust_level[[:space:]]*[=:] ]] \

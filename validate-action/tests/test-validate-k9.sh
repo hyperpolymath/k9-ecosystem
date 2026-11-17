@@ -297,4 +297,55 @@ EOF
 INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log"
 grep -q 'Errors:        0' "$CASE_DIR/out.log"
 
+# A binding and its body on one line: only the binding is dropped, so the
+# body's Hunt level is still seen and still needs a signature.
+run_case let-binding-same-line
+cat > "$CASE_DIR/inline.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+let leash = import "../leash.ncl" in { leash = 'Hunt,
+  magic_number = "K9!",
+  metadata = { name = "inline", version = "1.0.0" },
+} | K9Pedigree
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected a same-line binding not to hide the body Hunt level' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$CASE_DIR/out.log"
+
+# Every level field on a line is recorded: a Hunt after a Kennel on the same
+# line still needs a signature.
+run_case two-levels-one-line
+cat > "$CASE_DIR/oneline.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "x", version = "1", leash = 'Kennel }, app = { leash = 'Hunt },
+}
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected a second same-line level of Hunt to need a signature' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$CASE_DIR/out.log"
+
+# A schema name inside a quoted string is prose, not a pipe application, so
+# it does not count as a pedigree.
+run_case quoted-pipe
+cat > "$CASE_DIR/prose.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  description = "example | schemas.K9Pedigree",
+  name = "prose",
+  version = "1.0.0",
+  leash = 'Yard,
+}
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected a quoted pipe application not to count as a pedigree' >&2
+    exit 1
+fi
+grep -q 'Missing pedigree' "$CASE_DIR/out.log"
+
 echo 'K9 validator regression tests passed'
