@@ -348,4 +348,36 @@ if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&
 fi
 grep -q 'Missing pedigree' "$CASE_DIR/out.log"
 
+# A level written inside a quoted string is prose, not a field: it must not
+# turn a Yard file into one that needs a signature.
+run_case quoted-level-prose
+cat > "$CASE_DIR/prose-level.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "x", version = "1", leash = 'Yard }, description = "example leash = Hunt",
+}
+EOF
+INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log"
+grep -q 'Errors:        0' "$CASE_DIR/out.log"
+
+# A policy trust_level after a leash is still recorded, so an unsigned Hunt
+# policy is caught whichever order the declarations come in.
+run_case leash-then-policy
+cat > "$CASE_DIR/order.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "order", version = "1.0.0", leash = 'Kennel },
+  policy = {
+    trust_level = 'Hunt,
+  },
+}
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected a Hunt policy after a Kennel leash to need a signature' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$CASE_DIR/out.log"
+
 echo 'K9 validator regression tests passed'

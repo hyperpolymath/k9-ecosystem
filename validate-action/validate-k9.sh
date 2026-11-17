@@ -389,23 +389,37 @@ validate_k9() {
         # a body on the same line (`in { leash = 'Hunt, ... }`) is still
         # scanned. Every level field on the line is recorded, not only the
         # first.
-        local level_scan="$line" level_match line_has_level=false
-        if [[ "$level_scan" =~ ^([[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*=) ]]; then
-            level_scan="${level_scan:${#BASH_REMATCH[1]}}"
+        # Field names are found in the quote-masked line, so prose such as
+        # `description = "leash = Hunt"` is not a field; each value is then
+        # read from the same offset in the original line (masking keeps
+        # every character in place), so a quoted placeholder still works.
+        local scan_m="$masked" scan_o="$line" level_key key_prefix key_end
+        local line_has_level=false
+        if [[ "$scan_m" =~ ^([[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*=) ]]; then
+            scan_m="${scan_m:${#BASH_REMATCH[1]}}"
+            scan_o="${scan_o:${#BASH_REMATCH[1]}}"
         fi
-        while [[ "$level_scan" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; do
-            level_match="${BASH_REMATCH[0]}"
-            line_has_level=true
-            has_security_level=true
-            has_primary_security_level=true
-            security_level_value="$(normalise_level "$level_match")"
-            security_level_line=$line_num
-            record_security_level "$security_level_value" "$line_num"
-            level_scan="${level_scan#*"$level_match"}"
+        while [[ "$scan_m" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:] ]]; do
+            level_key="${BASH_REMATCH[0]}"
+            key_prefix="${scan_m%%"$level_key"*}"
+            key_end=$(( ${#key_prefix} + ${#level_key} ))
+            scan_m="${scan_m:key_end}"
+            scan_o="${scan_o:key_end}"
+            if [[ "$scan_o" =~ ^[[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; then
+                line_has_level=true
+                has_security_level=true
+                has_primary_security_level=true
+                security_level_value="$(normalise_level "${level_key}${BASH_REMATCH[0]}")"
+                security_level_line=$line_num
+                record_security_level "$security_level_value" "$line_num"
+            fi
         done
+        # A policy trust_level is recorded wherever it appears, whether or
+        # not a leash came earlier: the order of declarations must not
+        # decide whether a Hunt level needs a signature.
         if [[ "$line_has_level" == "true" ]]; then
             :
-        elif [[ "$has_primary_security_level" == "false" ]]; then
+        else
             local trust_is_policy=false
             if [[ "$line" =~ policy[[:space:]]*\.[[:space:]]*trust_level[[:space:]]*[=:] ]] \
                || [[ "$in_policy" == "true" && "$line" =~ (^|[[:space:]\{,])trust_level[[:space:]]*[=:] ]] \
