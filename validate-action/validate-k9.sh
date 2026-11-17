@@ -119,7 +119,7 @@ strip_k9_comment() {
 
 comment_free_file() {
     local file="$1" line
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         strip_k9_comment "$line"
     done < "$file"
 }
@@ -157,7 +157,7 @@ mask_k9_quoted_text() {
 
 structural_syntax_file() {
     local file="$1" line
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         mask_k9_quoted_text "$(strip_k9_comment "$line")"
     done < "$file"
 }
@@ -218,6 +218,15 @@ report_issue() {
 # ---------------------------------------------------------------------------
 # Strips quotes, leading/trailing whitespace, Nickel enum tick prefix.
 # Handles both separators: `leash = 'Hunt` (Nickel) and `leash: hunt` (plain).
+# Remember every security level a file declares, with its line, so that a
+# later field cannot overwrite an earlier one: a Hunt level followed by an
+# unrelated Kennel leash must still need a signature. Appends to the
+# caller's `seen_levels` and `seen_level_lines` arrays (bash dynamic scope).
+record_security_level() {
+    seen_levels+=("$1")
+    seen_level_lines+=("$2")
+}
+
 normalise_level() {
     local raw="$1"
     # Remove surrounding quotes, tick prefix ('Kennel -> Kennel), whitespace
@@ -258,7 +267,7 @@ validate_k9() {
     local first_content_line_num=0
     local line_num=0
 
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         line_num=$((line_num + 1))
         # Skip empty lines
         if [[ -z "${line// /}" ]]; then
@@ -283,7 +292,7 @@ validate_k9() {
             has_marker=true
         elif grep -Eq '^[[:space:]]*magic_number[[:space:]]*=[[:space:]]*"K9!"' <<< "$syntax_content"; then
             has_marker=true
-        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|&[[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)|import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' <<< "$syntax_content"; then
+        elif grep -Eq '(K9Pedigree|pedigree_schema)([[:space:]]*&|[[:space:]]*\{)|[&|][[:space:]]*(.*\.)?(K9Pedigree|pedigree_schema)|import[[:space:]]*"[^"]*(pedigree|\.k9)\.ncl"' <<< "$syntax_content"; then
             has_marker=true
         fi
 
@@ -296,7 +305,7 @@ validate_k9() {
     # --- Check 2: SPDX header ---
     local has_spdx=false
     line_num=0
-    while IFS= read -r line; do
+    while IFS= read -r line || [[ -n "$line" ]]; do
         line_num=$((line_num + 1))
         if [[ $line_num -gt 10 ]]; then
             break
@@ -325,6 +334,8 @@ validate_k9() {
     local security_level_value=""
     local security_level_line=0
     local has_signature_field=false
+    local -a seen_levels=()
+    local -a seen_level_lines=()
     local in_policy=false
     local policy_depth=0
 
@@ -342,7 +353,7 @@ validate_k9() {
         if [[ "$line" =~ ^[[:space:]]*(let[[:space:]]+)?[A-Za-z_]*pedigree[[:space:]]*= ]] \
            || [[ "$line" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\{ ]] \
            || [[ "$line" =~ (K9Pedigree|pedigree_schema)[[:space:]]*\& ]] \
-           || [[ "$line" =~ \&[[:space:]]*([A-Za-z_][A-Za-z0-9_]*\.)?(K9Pedigree|pedigree_schema) ]]; then
+           || [[ "$line" =~ [\&\|][[:space:]]*([A-Za-z_][A-Za-z0-9_]*\.)?(K9Pedigree|pedigree_schema) ]]; then
             has_pedigree=true
         fi
 
@@ -361,12 +372,19 @@ validate_k9() {
             has_pedigree_version=true
         fi
 
-        # Security level (leash field)
-        if [[ "$line" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:][[:space:]]*([^,\}\#]+) ]]; then
+        # Security level (leash field). A `{{...}}` template placeholder,
+        # quoted or not, is captured whole: the generic value class stops at
+        # the first `}` and would cut it to `{{level`.
+        # A Nickel binding such as `let leash = import "../leash.ncl" in`
+        # names a module, not a level, so it is not a leash field.
+        if [[ "$line" =~ ^[[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*= ]]; then
+            :
+        elif [[ "$line" =~ (^|[[:space:]\{,])(leash|security_level)[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; then
             has_security_level=true
             has_primary_security_level=true
             security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
             security_level_line=$line_num
+            record_security_level "$security_level_value" "$line_num"
         elif [[ "$has_primary_security_level" == "false" ]]; then
             local trust_is_policy=false
             if [[ "$line" =~ policy[[:space:]]*\.[[:space:]]*trust_level[[:space:]]*[=:] ]] \
@@ -375,12 +393,13 @@ validate_k9() {
                 trust_is_policy=true
             fi
             if [[ "$trust_is_policy" == "true" ]] \
-               && [[ "$line" =~ trust_level[[:space:]]*[=:][[:space:]]*([^,\}]+) ]]; then
+               && [[ "$line" =~ trust_level[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}]+) ]]; then
                 # Only schema-v1 policy.trust_level is a leash. Legacy
                 # pedigree-level trust_level is descriptive metadata.
                 has_security_level=true
                 security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
                 security_level_line=$line_num
+                record_security_level "$security_level_value" "$line_num"
             fi
         fi
 
@@ -390,9 +409,14 @@ validate_k9() {
         fi
 
         if [[ "$in_policy" == "true" ]]; then
-            local without_open="${line//\{/}"
-            local without_close="${line//\}/}"
-            policy_depth=$((policy_depth + ${#line} - ${#without_open} - ${#line} + ${#without_close}))
+            # Count braces outside quoted strings only: `description = "}"`
+            # must not end the policy block early and hide a later
+            # trust_level.
+            local structural
+            structural="$(mask_k9_quoted_text "$line")"
+            local without_open="${structural//\{/}"
+            local without_close="${structural//\}/}"
+            policy_depth=$((policy_depth + ${#structural} - ${#without_open} - ${#structural} + ${#without_close}))
             if (( policy_depth <= 0 )); then
                 in_policy=false
                 policy_depth=0
@@ -416,26 +440,38 @@ validate_k9() {
     fi
 
     # --- Check 4: Security level validation ---
-    if [[ "$has_security_level" == "true" && "$security_level_value" =~ ^\{\{.*\}\}$ ]]; then
-        # Scaffold file: the level is a template placeholder to be filled at
-        # instantiation time. Note it, but a template cannot validate as
-        # concrete and flagging it every run just trains people to ignore
-        # the gate.
-        annotate "notice" "$file" "$security_level_line" \
-            "Security level is a template placeholder (${security_level_value}); skipping level validation"
-    elif [[ "$has_security_level" == "true" ]]; then
-        local level_valid=false
-        for valid in $VALID_LEVELS; do
-            if [[ "$security_level_value" == "$valid" ]]; then
-                level_valid=true
-                break
+    # Every level the file declares is checked, not only the last one.
+    local hunt_line=0
+    if [[ "$has_security_level" == "true" ]]; then
+        local i level level_line
+        for i in "${!seen_levels[@]}"; do
+            level="${seen_levels[$i]}"
+            level_line="${seen_level_lines[$i]}"
+            if [[ "$level" =~ ^\{\{.*\}\}$ ]]; then
+                # Scaffold file: the level is a template placeholder to be
+                # filled at instantiation time. Note it, but a template
+                # cannot validate as concrete and flagging it every run just
+                # trains people to ignore the gate.
+                annotate "notice" "$file" "$level_line" \
+                    "Security level is a template placeholder (${level}); skipping level validation"
+                continue
+            fi
+
+            local level_valid=false
+            for valid in $VALID_LEVELS; do
+                if [[ "$level" == "$valid" ]]; then
+                    level_valid=true
+                    break
+                fi
+            done
+
+            if [[ "$level_valid" == "false" ]]; then
+                report_issue "error" "$file" "$level_line" \
+                    "Invalid security level '${level}'. Must be one of: kennel, yard, hunt"
+            elif [[ "$level" == "hunt" && "$hunt_line" -eq 0 ]]; then
+                hunt_line="$level_line"
             fi
         done
-
-        if [[ "$level_valid" == "false" ]]; then
-            report_issue "error" "$file" "$security_level_line" \
-                "Invalid security level '${security_level_value}'. Must be one of: kennel, yard, hunt"
-        fi
     else
         if [[ "$has_pedigree" == "true" ]]; then
             report_issue "warning" "$file" 1 \
@@ -444,8 +480,9 @@ validate_k9() {
     fi
 
     # --- Check 5: Hunt-level signature requirement ---
-    if [[ "$security_level_value" == "hunt" && "$has_signature_field" == "false" ]]; then
-        report_issue "error" "$file" "$security_level_line" \
+    # Any Hunt level needs a signature, wherever it sits in the file.
+    if [[ "$hunt_line" -ne 0 && "$has_signature_field" == "false" ]]; then
+        report_issue "error" "$file" "$hunt_line" \
             "Hunt-level K9 file must include a 'signature' or 'signature_required' field"
     fi
 }
