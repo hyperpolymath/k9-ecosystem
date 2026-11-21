@@ -5,6 +5,7 @@ set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 failures=0
+manifest=.machine_readable/descriptiles/ECOSYSTEM.a2ml
 
 # Report a membership validation error and increment the failure counter.
 fail() {
@@ -12,9 +13,21 @@ fail() {
   failures=$((failures + 1))
 }
 
-# Check that a member repository is correctly registered in ECOSYSTEM.a2ml
-# and .gitmodules with proper URL, branch, and submodule mode.
-check_member() {
+# In-tree members must point to a tracked component, not a submodule.
+check_in_tree() {
+  local group="$1" name="$2" path="$3"
+
+  if ! grep -Fq "(member \"${name}\" (group \"${group}\") (path \"${path}\"))" "$manifest"; then
+    fail "${manifest} missing in-tree entry ${group}/${name} at ${path}"
+  fi
+
+  if [[ ! -d "$path" ]] || ! git ls-files --error-unmatch -- "${path}/README.adoc" >/dev/null 2>&1; then
+    fail "${path} is not a tracked in-tree component"
+  fi
+}
+
+# Independent members must match the manifest, .gitmodules, and index.
+check_submodule() {
   local group="$1"
   local name="$2"
   local url="https://github.com/hyperpolymath/${name}.git"
@@ -24,8 +37,12 @@ check_member() {
   local actual_branch
   local mode
 
-  if ! grep -Fq "(member \"${name}\" (group \"${group}\")" .machine_readable/descriptiles/ECOSYSTEM.a2ml; then
-    fail ".machine_readable/descriptiles/ECOSYSTEM.a2ml missing ${group}/${name}"
+  if ! grep -Fq "(member \"${name}\" (group \"${group}\") (path \"${path}\") (branch \"main\") (repo \"hyperpolymath/${name}\"))" "$manifest"; then
+    fail "${manifest} missing submodule entry ${group}/${name}"
+  fi
+
+  if [[ "$(git config -f .gitmodules --get "${module}.path" || true)" != "${path}" ]]; then
+    fail ".gitmodules missing path ${path}"
   fi
 
   actual_url="$(git config -f .gitmodules --get "${module}.url" || true)"
@@ -44,21 +61,19 @@ check_member() {
   fi
 }
 
-check_member implementations k9-rs
-check_member implementations k9_ex
-check_member implementations k9_gleam
-check_member implementations k9-deno
-check_member implementations k9-haskell
-check_member tooling tree-sitter-k9
-check_member tooling vscode-k9
-check_member tooling pandoc-k9
-check_member tooling k9iser
-check_member ci k9-validate-action
-check_member ci k9-pre-commit
-check_member examples k9-showcase
+check_in_tree implementations k9-rs rs
+check_in_tree implementations k9_ex ex
+check_in_tree implementations k9_gleam gleam
+check_in_tree implementations k9-deno deno
+check_in_tree implementations k9-haskell haskell
+check_in_tree tooling vscode-k9 editors/vscode
+check_in_tree tooling pandoc-k9 pandoc
+check_in_tree ci k9-validate-action validate-action
+check_in_tree examples k9-showcase showcase
+check_submodule ci k9-pre-commit
 
-if ! grep -Fq '(related "k9-svc"' .machine_readable/descriptiles/ECOSYSTEM.a2ml; then
-  fail ".machine_readable/descriptiles/ECOSYSTEM.a2ml missing future k9-svc related reference"
+if ! grep -Fq '(related "k9-svc"' "$manifest"; then
+  fail "${manifest} missing future k9-svc related reference"
 fi
 
 if [[ "${failures}" -gt 0 ]]; then

@@ -19,24 +19,22 @@
 
   (membership
     (implementations
-      (member "k9-rs" (group "implementations") (path "members/implementations/k9-rs") (branch "main") (repo "hyperpolymath/k9-rs"))
-      (member "k9_ex" (group "implementations") (path "members/implementations/k9_ex") (branch "main") (repo "hyperpolymath/k9_ex"))
-      (member "k9_gleam" (group "implementations") (path "members/implementations/k9_gleam") (branch "main") (repo "hyperpolymath/k9_gleam"))
-      (member "k9-deno" (group "implementations") (path "members/implementations/k9-deno") (branch "main") (repo "hyperpolymath/k9-deno"))
-      (member "k9-haskell" (group "implementations") (path "members/implementations/k9-haskell") (branch "main") (repo "hyperpolymath/k9-haskell")))
+      (member "k9-rs" (group "implementations") (path "rs"))
+      (member "k9_ex" (group "implementations") (path "ex"))
+      (member "k9_gleam" (group "implementations") (path "gleam"))
+      (member "k9-deno" (group "implementations") (path "deno"))
+      (member "k9-haskell" (group "implementations") (path "haskell")))
 
     (tooling
-      (member "tree-sitter-k9" (group "tooling") (path "members/tooling/tree-sitter-k9") (branch "main") (repo "hyperpolymath/tree-sitter-k9"))
-      (member "vscode-k9" (group "tooling") (path "members/tooling/vscode-k9") (branch "main") (repo "hyperpolymath/vscode-k9"))
-      (member "pandoc-k9" (group "tooling") (path "members/tooling/pandoc-k9") (branch "main") (repo "hyperpolymath/pandoc-k9"))
-      (member "k9iser" (group "tooling") (path "members/tooling/k9iser") (branch "main") (repo "hyperpolymath/k9iser")))
+      (member "vscode-k9" (group "tooling") (path "editors/vscode"))
+      (member "pandoc-k9" (group "tooling") (path "pandoc")))
 
     (ci
-      (member "k9-validate-action" (group "ci") (path "members/ci/k9-validate-action") (branch "main") (repo "hyperpolymath/k9-validate-action"))
+      (member "k9-validate-action" (group "ci") (path "validate-action"))
       (member "k9-pre-commit" (group "ci") (path "members/ci/k9-pre-commit") (branch "main") (repo "hyperpolymath/k9-pre-commit")))
 
     (examples
-      (member "k9-showcase" (group "examples") (path "members/examples/k9-showcase") (branch "main") (repo "hyperpolymath/k9-showcase"))))
+      (member "k9-showcase" (group "examples") (path "showcase"))))
 
   (related
     (related "k9-svc" (relationship "future-service-repository") (repo "hyperpolymath/k9-svc") (exists false))))
