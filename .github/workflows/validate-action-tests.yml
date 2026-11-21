@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Check out source
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@v4.4.0
       - name: Check shell syntax
         run: bash -n validate-action/validate-k9.sh validate-action/tests/test-validate-k9.sh
       - name: Run regression and positive-control tests

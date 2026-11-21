@@ -1,3 +1,5 @@
+<!-- SPDX-License-Identifier: MPL-2.0 -->
+
 # ⚠️ STOP - CRITICAL READING REQUIRED
 
 **THIS FILE MUST BE READ FIRST BY ALL AI AGENTS**
@@ -116,6 +118,6 @@ k9-validate-action/
 ✅ Understand canonical location: `.machine_readable/`
 ✅ State understanding of canonical locations
 
-## ATTESTATION PROOF
+## READER ACKNOWLEDGMENT
 
 **"I have read the AI manifest. All machine-readable content (state files, anchors, policies, bot directives, contractiles, AI guides) is located in `.machine_readable/` ONLY, and community metadata is in `.github/`. I will not create duplicate files in the root directory."**

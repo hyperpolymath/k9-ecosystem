@@ -36,15 +36,4 @@ init_member() {
   printf 'initialized %s/%s at %s\n' "${group}" "${name}" "${gitlink}"
 }
 
-init_member implementations k9-rs "self-validating/k9-core/k9-rs"
-init_member implementations k9_ex "self-validating/k9_ex"
-init_member implementations k9_gleam "self-validating/k9_gleam"
-init_member implementations k9-deno "self-validating/k9-core/k9-deno"
-init_member implementations k9-haskell "self-validating/k9-core/k9-haskell"
-init_member tooling tree-sitter-k9 "self-validating/tree-sitter-k9"
-init_member tooling vscode-k9 "self-validating/vscode-k9"
-init_member tooling pandoc-k9 "self-validating/pandoc-k9"
-init_member tooling k9iser "isers/k9iser"
-init_member ci k9-validate-action "self-validating/k9-validate-action"
 init_member ci k9-pre-commit "self-validating/k9-core/k9-pre-commit"
-init_member examples k9-showcase "self-validating/k9-core/k9-showcase"

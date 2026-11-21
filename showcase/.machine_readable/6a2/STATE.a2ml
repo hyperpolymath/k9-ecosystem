@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: MPL-2.0
 # STATE.a2ml — k9-showcase
 project = "k9-showcase"
 version = "0.1.0"

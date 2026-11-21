@@ -6,9 +6,9 @@
     (updated "2026-06-27"))
   (how-to
     (add-member
-      (step "Create or identify the member repo under hyperpolymath/")
-      (step "git submodule add -b main https://github.com/hyperpolymath/<name>.git members/<group>/<name>")
-      (step "Add a (member ...) entry to .machine_readable/descriptiles/ECOSYSTEM.a2ml and a check_member line to scripts/check-membership.sh")
+      (step "Identify the in-tree component directory or the independent repo under hyperpolymath/")
+      (step "For an independent repo, run git submodule add -b main https://github.com/hyperpolymath/<name>.git members/<group>/<name>")
+      (step "Add a (member ...) entry to .machine_readable/descriptiles/ECOSYSTEM.a2ml and a check_in_tree or check_submodule line to scripts/check-membership.sh")
       (step "Run scripts/check-membership.sh until it passes"))
     (add-conformance-case
       (step "Add a .k9.ncl fixture under conformance/valid or conformance/invalid")

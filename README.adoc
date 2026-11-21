@@ -47,8 +47,9 @@ point that indexes this surface.
 
 == Membership Layout
 
-Member repositories are pinned as submodules under `members/<group>/<name>` on
-their `main` branches. The groups are:
+The membership manifest records in-tree components by their paths. Independent
+member repositories are pinned as submodules under `members/<group>/<name>`.
+The groups are:
 
 * `implementations`
 * `tooling`
