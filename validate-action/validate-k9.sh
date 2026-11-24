@@ -394,7 +394,6 @@ validate_k9() {
         # read from the same offset in the original line (masking keeps
         # every character in place), so a quoted placeholder still works.
         local scan_m="$masked" scan_o="$line" level_key key_prefix key_end
-        local line_has_level=false
         if [[ "$scan_m" =~ ^([[:space:]]*let[[:space:]]+(leash|security_level)[[:space:]]*=) ]]; then
             scan_m="${scan_m:${#BASH_REMATCH[1]}}"
             scan_o="${scan_o:${#BASH_REMATCH[1]}}"
@@ -406,7 +405,6 @@ validate_k9() {
             scan_m="${scan_m:key_end}"
             scan_o="${scan_o:key_end}"
             if [[ "$scan_o" =~ ^[[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; then
-                line_has_level=true
                 has_security_level=true
                 has_primary_security_level=true
                 security_level_value="$(normalise_level "${level_key}${BASH_REMATCH[0]}")"
@@ -415,27 +413,36 @@ validate_k9() {
             fi
         done
         # A policy trust_level is recorded wherever it appears, whether or
-        # not a leash came earlier: the order of declarations must not
-        # decide whether a Hunt level needs a signature.
-        if [[ "$line_has_level" == "true" ]]; then
-            :
-        else
-            local trust_is_policy=false
-            if [[ "$line" =~ policy[[:space:]]*\.[[:space:]]*trust_level[[:space:]]*[=:] ]] \
-               || [[ "$in_policy" == "true" && "$line" =~ (^|[[:space:]\{,])trust_level[[:space:]]*[=:] ]] \
-               || [[ "$line" =~ (^|[[:space:]\{,])policy[[:space:]]*=[[:space:]]*\{[^\}]*trust_level[[:space:]]*[=:] ]]; then
-                trust_is_policy=true
+        # not a leash sits on the same line or came earlier: the order and
+        # layout of declarations must not decide whether a Hunt level needs
+        # a signature. Every trust_level on the line is checked, not only
+        # the first. As for leash, keys are found in the quote-masked line
+        # (so `description = "policy.trust_level = 'Hunt"` is prose) and
+        # each value is read from the same offset in the original line.
+        # Only schema-v1 policy.trust_level is a leash: one inside an open
+        # `policy = {` (this line or an earlier one) or written
+        # `policy.trust_level`. Legacy pedigree-level trust_level is
+        # descriptive metadata.
+        local tscan_m="$masked" tscan_o="$line" tscan_done="" tl_key tl_prefix tl_end tl_before
+        while [[ "$tscan_m" =~ (^|[[:space:]\{,.])trust_level[[:space:]]*[=:] ]]; do
+            tl_key="${BASH_REMATCH[0]}"
+            tl_prefix="${tscan_m%%"$tl_key"*}"
+            tl_end=$(( ${#tl_prefix} + ${#tl_key} ))
+            tl_before="${tscan_done}${tl_prefix}${tl_key%%trust_level*}"
+            tscan_done="${tscan_done}${tscan_m:0:tl_end}"
+            tscan_m="${tscan_m:tl_end}"
+            tscan_o="${tscan_o:tl_end}"
+            if [[ "$in_policy" == "true" ]] \
+               || [[ "$tl_before" =~ policy[[:space:]]*\.[[:space:]]*$ ]] \
+               || [[ "$tl_before" =~ (^|[[:space:]\{,])policy[[:space:]]*=[[:space:]]*\{[^\}]*$ ]]; then
+                if [[ "$tscan_o" =~ ^[[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}\#]+) ]]; then
+                    has_security_level=true
+                    security_level_value="$(normalise_level "${tl_key}${BASH_REMATCH[0]}")"
+                    security_level_line=$line_num
+                    record_security_level "$security_level_value" "$line_num"
+                fi
             fi
-            if [[ "$trust_is_policy" == "true" ]] \
-               && [[ "$line" =~ trust_level[[:space:]]*[=:][[:space:]]*([\"\']?\{\{[^\}]*\}\}[\"\']?|[^,\}]+) ]]; then
-                # Only schema-v1 policy.trust_level is a leash. Legacy
-                # pedigree-level trust_level is descriptive metadata.
-                has_security_level=true
-                security_level_value="$(normalise_level "${BASH_REMATCH[0]}")"
-                security_level_line=$line_num
-                record_security_level "$security_level_value" "$line_num"
-            fi
-        fi
+        done
 
         # Signature fields
         if [[ "$line" =~ (^|[[:space:]\{,])(signature|signature_required)[[:space:]]*[=:] ]]; then
