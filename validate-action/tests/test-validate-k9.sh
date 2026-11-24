@@ -380,4 +380,48 @@ if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&
 fi
 grep -q "must include a 'signature'" "$CASE_DIR/out.log"
 
+run_case leash-and-policy-one-line
+cat > "$CASE_DIR/same-line.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "same-line", version = "1.0.0", leash = 'Kennel }, policy = { trust_level = 'Hunt },
+}
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected a Hunt policy on the same line as a Kennel leash to need a signature' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$CASE_DIR/out.log"
+
+run_case two-policies-one-line
+cat > "$CASE_DIR/two.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "two", version = "1.0.0", leash = 'Kennel },
+  policies = { first = { policy = { trust_level = 'Kennel } }, second = { policy = { trust_level = 'Hunt } } },
+}
+EOF
+if INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1; then
+    echo 'expected the second, Hunt, policy on one line to need a signature' >&2
+    exit 1
+fi
+grep -q "must include a 'signature'" "$CASE_DIR/out.log"
+
+run_case quoted-policy-prose
+cat > "$CASE_DIR/prose.k9.ncl" <<'EOF'
+# SPDX-License-Identifier: MPL-2.0
+{
+  magic_number = "K9!",
+  pedigree = { name = "prose", version = "1.0.0", leash = 'Kennel },
+  description = "policy.trust_level = 'Hunt",
+}
+EOF
+INPUT_PATH="$CASE_DIR" "$ACTION_DIR/validate-k9.sh" > "$CASE_DIR/out.log" 2>&1 || {
+    echo 'quoted prose naming a policy trust_level is not a security level' >&2
+    cat "$CASE_DIR/out.log" >&2
+    exit 1
+}
+
 echo 'K9 validator regression tests passed'
