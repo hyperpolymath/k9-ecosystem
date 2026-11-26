@@ -8,3 +8,4 @@ Items deliberately deferred by the swap PR, so nothing passes on absence.
 * Proof witnesses and full agda `--cubical`.
 * Replace vendored `tests/kit/` with the umbrella-provided copy once kit-v0.1.0 exists; add a drift check.
 * Unify the Idris lexer shared by the escape-hatch gate and the proof census.
+* Fix the five Zig FFI template builds (build.zig fails under Zig 0.15.2), then add real zig unit/smoke/build tests.
