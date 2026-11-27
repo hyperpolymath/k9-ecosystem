@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: MPL-2.0
+schema = "proven/manifest/v1"
+
+# Every category runs the repo shell scripts (toolchain-free); other languages are ignored with reasons.
+[categories.unit]
+command = "bash tests/unit.sh"
+
+[categories.smoke]
+command = "bash tests/smoke.sh"
+
+[categories.build]
+command = "bash tests/build.sh"
+
+[categories.p2p]
+command = "bash tests/p2p.sh"
+
+[languages.ignore.elixir]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.gleam]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.haskell]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.idris2]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.lua]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.node]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.ruby]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.rust]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
+[languages.ignore.zig]
+reason = "Toolchain-backed tests for this language are not provisioned by the umbrella in release 0.1 (or need nickel, which it lacks); repository checks run through tests/*.sh. Tracked in .proven/LATER.adoc."
+
