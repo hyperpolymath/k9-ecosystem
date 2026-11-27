@@ -1,0 +1,4 @@
+[submodule "members/ci/k9-pre-commit"]
+	path = members/ci/k9-pre-commit
+	url = https://github.com/hyperpolymath/k9-pre-commit.git
+	branch = main
