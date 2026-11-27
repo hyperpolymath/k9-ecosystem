@@ -34,13 +34,10 @@ gnu-grep = "latest"
 task = "go-task"
 
 [tasks.build]
-run = "cargo build --release"
-
-[tasks.test]
-run = "cargo test"
+run = "cabal build"
 
 [tasks.lint]
-run = "bun install --frozen-lockfile --cwd .. && bunx --no-install --bun prettier --check ."
+run = 'bun install --frozen-lockfile --cwd .. && bunx --no-install --bun prettier --check --no-error-on-unmatched-pattern "**/*.{js,mjs,cjs,json,md}"'
 
 [tasks.fmt]
-run = "bun install --frozen-lockfile --cwd .. && bunx --no-install --bun prettier --write ."
+run = 'bun install --frozen-lockfile --cwd .. && bunx --no-install --bun prettier --write --no-error-on-unmatched-pattern "**/*.{js,mjs,cjs,json,md}"'
